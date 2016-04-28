@@ -1,22 +1,17 @@
 package com.tedgro.ted.epubreader;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by Ted on 4/15/2016.
  */
-public class FragmentInfo extends Fragment {
+public class FragmentInfo extends AppCompatActivity {
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        setContentView(R.layout.fragment_info);
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstancesState) {
-        return inflater.inflate(R.layout.fragment_info, container, false);
-    }
 }

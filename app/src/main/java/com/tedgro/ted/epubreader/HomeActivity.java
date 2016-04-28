@@ -1,10 +1,16 @@
 package com.tedgro.ted.epubreader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -29,13 +35,51 @@ import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
 
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.fragment_home);
 
 
-        //does each fragment have ot be made here in an if statement?
+        //get book titles from database
+        ArrayList<String> list = new ArrayList<String>();
+
+        dbHelper helper = new dbHelper(this);
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+
+        //testdata
+        ContentValues values = new ContentValues();
+        values.put("folder_name", "hi");
+        values.put("title", "title");
+        values.put("author", "ted");
+        values.put("description", "im a book");
+        values.put("date", "1992");
+        // Insert the new record
+        db.insert("book", null, values);
+        //end testdata
+
+
+        Cursor c=db.query("book", new String[] {"title"}, null, null, null, null, null);
+        if (c != null) {
+            int i = 0;
+            c.moveToFirst();
+                while (i<c.getCount()) {
+                    String title = c.getString(c.getColumnIndex("title"));
+                    list.add(title);
+                    i++;
+                }
+        }
+
+
+        //instantiate custom adapter
+        MyCustomAdapter adapter = new MyCustomAdapter(list, this);
+
+        //handle listview and assign adapter
+        ListView lView = (ListView)findViewById(R.id.bookListView);
+        lView.setAdapter(adapter);
+
+
     }
 
 
@@ -52,13 +96,157 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_add) {
-            Fragment fr = new FileFragment();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.fragment_place, fr);
-            ft.commit();
+            Intent i = new Intent(HomeActivity.this, FileFragment.class);
+            startActivity(i);
         }
-        return super.onOptionsItemSelected(item);
+//        return super.onOptionsItemSelected(item);
+        return true;
     }
+
+
+
+
+    public static class dbHelper extends SQLiteOpenHelper {
+
+        public static final String DB_NAME = "books.db";
+        public static final int DB_VERSION = 1;
+
+        public dbHelper(Context context) {
+            super(context, DB_NAME, null, DB_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS book(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), title nvarchar(200), author nvarchar(200), description nvarchar(400), date nvarchar(50));");
+
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS book");
+
+            // create fresh books table
+            this.onCreate(db);
+        }
+    }
+
+
+
+
+
+
+    //Custom listview generation (info, delete, book)
+    public class MyCustomAdapter extends BaseAdapter implements ListAdapter {
+        private ArrayList<String> bookList =  new ArrayList<String>();
+        private Context context;
+
+        public MyCustomAdapter(ArrayList<String> bookList, Context context) {
+            this.bookList = bookList;
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return bookList.size();
+        }
+
+        @Override
+        public Object getItem(int pos) {
+            return bookList.get(pos);
+        }
+
+        @Override
+        public long getItemId(int pos) {
+            return 0;
+            //return bookList.get(pos).getId();
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            //get nested layout
+            View view = convertView;
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.custom_list_layout, parent, false);
+            }
+
+            //set textview string
+            TextView listItemText = (TextView)view.findViewById(R.id.list_book_string);
+            listItemText.setText(bookList.get(position));
+
+            //make buttons
+            Button info_button = (Button)view.findViewById(R.id.bookInfo_btn);
+            Button delete_button = (Button)view.findViewById(R.id.bookDelete_btn);
+
+            //delete button event
+            delete_button.setOnClickListener(new View.OnClickListener(){
+
+                //confirmation popup
+
+
+                @Override
+                public void onClick(View v) {
+
+                    AlertDialog.Builder confirmation = new AlertDialog.Builder(
+                            context);
+
+
+                    confirmation.setTitle("Confirm");
+
+
+                    confirmation
+                            .setMessage("Delete book from library?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+
+                                    //remove row
+                                    bookList.remove(position); //or some other task
+                                    notifyDataSetChanged();
+
+                                    //delete book files
+
+                                    //delete page bookmark in preferences
+
+                                    //delete from database
+
+                                }
+                            })
+                            .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+
+                    AlertDialog alertDialog = confirmation.create();
+
+
+                    alertDialog.show();
+                }
+            });
+
+
+
+
+
+            //info button event
+            info_button.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    //open info activity
+                    Intent i = new Intent(HomeActivity.this, FragmentInfo.class);
+                    startActivity(i);
+                }
+            });
+
+            return view;
+        }
+    }
+
+
+
+
 
 
 

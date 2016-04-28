@@ -7,16 +7,16 @@
 
     <TextView
         android:id="@+id/list_book_string"
-        android:gravity="start|center"
+        android:gravity="start"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="15dp"
-        android:textSize="22sp"
+        android:paddingTop="5dp"
+        android:textSize="16sp"
         android:clickable="true"
         android:onClick="openBook"
-
-        android:singleLine="true"
-        android:paddingRight="115dp"
+        android:maxLines="2"
+        android:paddingRight="127dp"
         />
 
 <LinearLayout
@@ -31,7 +31,7 @@
         android:layout_height="match_parent"
         android:id="@+id/bookInfo_btn"
         android:layout_gravity="right"
-        android:layout_margin="0dp"
+        android:layout_marginRight="12dp"
         />
 
     <Button

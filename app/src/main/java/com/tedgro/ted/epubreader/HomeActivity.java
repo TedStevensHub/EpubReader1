@@ -35,45 +35,48 @@ import java.util.ArrayList;
 
 public class HomeActivity extends AppCompatActivity {
 
+    //get book titles from database
+    ArrayList<String> list = new ArrayList<String>();
+    ArrayList<String> alist = new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_home);
 
 
-        //get book titles from database
-        ArrayList<String> list = new ArrayList<String>();
-
         dbHelper helper = new dbHelper(this);
         SQLiteDatabase db = helper.getReadableDatabase();
 
 
         //testdata
-        ContentValues values = new ContentValues();
+ /*       ContentValues values = new ContentValues();
         values.put("folder_name", "hi");
         values.put("title", "title");
         values.put("author", "ted");
         values.put("description", "im a book");
         values.put("date", "1992");
         // Insert the new record
-        db.insert("book", null, values);
+        db.insert("book", null, values);*/
         //end testdata
 
 
-        Cursor c=db.query("book", new String[] {"title"}, null, null, null, null, null);
+        Cursor c=db.query("book", new String[] {"title", "author"}, null, null, null, null, null);
         if (c != null) {
             int i = 0;
             c.moveToFirst();
                 while (i<c.getCount()) {
                     String title = c.getString(c.getColumnIndex("title"));
+                    String author = c.getString(c.getColumnIndex("author"));
                     list.add(title);
+                    alist.add(author);
                     i++;
                 }
         }
 
 
         //instantiate custom adapter
-        MyCustomAdapter adapter = new MyCustomAdapter(list, this);
+        MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
 
         //handle listview and assign adapter
         ListView lView = (ListView)findViewById(R.id.bookListView);
@@ -102,6 +105,23 @@ public class HomeActivity extends AppCompatActivity {
 //        return super.onOptionsItemSelected(item);
         return true;
     }
+
+
+/*    @Override
+    public void onResume() {
+        super.onResume();
+
+        Bundle intent = getIntent().getExtras();
+        if (intent != null) {
+            String title = intent.getString("title");
+            String author = intent.getString("author");
+            list.add(title);
+            alist.add(author);
+        }
+
+        MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
+        adapter.notifyDataSetChanged();
+    }*/
 
 
 
@@ -138,10 +158,12 @@ public class HomeActivity extends AppCompatActivity {
     //Custom listview generation (info, delete, book)
     public class MyCustomAdapter extends BaseAdapter implements ListAdapter {
         private ArrayList<String> bookList =  new ArrayList<String>();
+        private ArrayList<String> authorList =  new ArrayList<String>();
         private Context context;
 
-        public MyCustomAdapter(ArrayList<String> bookList, Context context) {
+        public MyCustomAdapter(ArrayList<String> bookList, ArrayList<String> authorList, Context context) {
             this.bookList = bookList;
+            this.authorList = authorList;
             this.context = context;
         }
 
@@ -172,7 +194,10 @@ public class HomeActivity extends AppCompatActivity {
 
             //set textview string
             TextView listItemText = (TextView)view.findViewById(R.id.list_book_string);
+            TextView authorListText = (TextView)view.findViewById(R.id.list_author_string);
             listItemText.setText(bookList.get(position));
+            authorListText.setText(authorList.get(position));
+
 
             //make buttons
             Button info_button = (Button)view.findViewById(R.id.bookInfo_btn);
@@ -202,6 +227,7 @@ public class HomeActivity extends AppCompatActivity {
 
                                     //remove row
                                     bookList.remove(position); //or some other task
+                                    authorList.remove(position);
                                     notifyDataSetChanged();
 
                                     //delete book files
@@ -243,7 +269,6 @@ public class HomeActivity extends AppCompatActivity {
             return view;
         }
     }
-
 
 
 

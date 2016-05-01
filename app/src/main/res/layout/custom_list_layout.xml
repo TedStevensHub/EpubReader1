@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="100dp"
     android:background="@color/white"
     android:padding="0dp">
 
@@ -16,14 +16,30 @@
         android:clickable="true"
         android:onClick="openBook"
         android:maxLines="2"
-        android:paddingRight="127dp"
+        android:paddingRight="142dp"
+        />
+    <TextView
+        android:id="@+id/list_author_string"
+        android:gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="15dp"
+        android:paddingTop="50dp"
+        android:textSize="16sp"
+        android:clickable="true"
+        android:onClick="openBook"
+        android:maxLines="2"
+        android:paddingRight="142dp"
         />
 
 <LinearLayout
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="50dp"
     android:orientation="horizontal"
-    android:layout_alignParentRight="true">
+    android:layout_alignParentRight="true"
+    android:layout_marginTop="25dp"
+    android:layout_marginRight="15dp">
+
 
     <Button
         android:background="@drawable/info"

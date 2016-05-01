@@ -1,6 +1,7 @@
 package com.tedgro.ted.epubreader;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +40,9 @@ import java.util.zip.ZipInputStream;
 public class FileFragment extends AppCompatActivity {
 
     private ListView lv;
+
+    //path to folder where all files are
+    final String PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/eBooks/";
 
     @Override
     public void onCreate(Bundle saveInstanceState) {
@@ -85,16 +91,17 @@ public class FileFragment extends AppCompatActivity {
                                 //check if there is space on device for uncompressed files
 
                                 //getFilesDir() needs to know which activity the fragment is apart of
-                                Context context = getApplicationContext();
 
-                                //path to folder where all files are
-                                final String PATH = Environment.getExternalStorageDirectory() + "/eBooks/";
+
+
 
                                 //click event with position to get file name
                                 String fileName = list.get(p);
 
                                 //unzip and add database record
-                                unpackZip(PATH, fileName, context);
+
+                                    unpackZip(PATH, fileName);
+
 
 
                             }
@@ -128,23 +135,29 @@ public class FileFragment extends AppCompatActivity {
             this.folderName = folderName;
         }
 
-        public Book getMetaData(String folderName2) throws Exception {
+        //does zipname pass to class or method of class
+        public Book getMetaData() throws Exception {
             Book book = new Book();
             XmlPullParserFactory pullParserFactory;
             try {
                 pullParserFactory = XmlPullParserFactory.newInstance();
+                //pullParserFactory.setNamespaceAware(false);
 
                 XmlPullParser parser = pullParserFactory.newPullParser();
 
-                InputStream in_s = getAssets().open(folderName2 + "/OEBPS/content.opf");
-                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+
+                InputStream in_s = new FileInputStream(getFilesDir().getAbsolutePath() + "/" + folderName + "/OEBPS/content.opf");
+                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                 parser.setInput(in_s, null);
 
-                parseXML(parser);
+                //***do i have to set book=parseXML in order to receive the return object
+                book=parseXML(parser);
 
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
-            }
+            } catch (IOException e) {
+                e.printStackTrace();
+        }
             return book;
         }
     }
@@ -171,13 +184,13 @@ public class FileFragment extends AppCompatActivity {
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
 
-                    if (name == "dc:title" && book.getTitle() == "") {
+                    if (name == "title") {
                         book.setTitle(parser.nextText());
-                    } else if (name == "dc:creator" && book.getAuthor() == "") {
+                    } else if (name == "creator") {
                         book.setAuthor(parser.nextText());
-                    } else if (name == "dc:description" && book.getDescription() == "") {
+                    } else if (name == "description") {
                         book.setDescription(parser.nextText());
-                    } else if (name == "dc:date" && book.getPubDate() == "") {
+                    } else if (name == "date") {
                         book.setPubDate(parser.nextText());
                     }
 
@@ -190,6 +203,10 @@ public class FileFragment extends AppCompatActivity {
             }
             eventType = parser.next();
         }
+        System.out.println(book.getTitle());
+        System.out.println(book.getAuthor());
+        System.out.println(book.getDescription());
+        System.out.println(book.getPubDate());
         return book;
     }
 
@@ -249,15 +266,54 @@ public class FileFragment extends AppCompatActivity {
 
 
 
+
+/*
+    public void unpackZip(File zipFile, File targetDirectory, String zipname) throws IOException {
+        ZipInputStream zis = new ZipInputStream(
+                new BufferedInputStream(new FileInputStream(zipFile)));
+        try {
+            ZipEntry ze;
+            int count;
+            byte[] buffer = new byte[8192];
+            while ((ze = zis.getNextEntry()) != null) {
+                File file = new File(targetDirectory, ze.getName());
+                File dir = ze.isDirectory() ? file : file.getParentFile();
+                if (!dir.isDirectory() && !dir.mkdirs())
+                    throw new FileNotFoundException("Failed to ensure directory: " +
+                            dir.getAbsolutePath());
+                if (ze.isDirectory())
+                    continue;
+                FileOutputStream fout = new FileOutputStream(file);
+                try {
+                    while ((count = zis.read(buffer)) != -1)
+                        fout.write(buffer, 0, count);
+                } finally {
+                    fout.close();
+                }
+            *//* if time should be restored as well
+            long time = ze.getTime();
+            if (time > 0)
+                file.setLastModified(time);
+            *//*
+            }
+        } finally {
+            zis.close();
+            addBook(zipname);
+        }
+    }*/
+
+
+
+
+
     //loop the unzip up to 2 times with a counter, with an if statement. once to import meta file and read xml, then delete meta, change path, import all
     //getnextentry()-getname() returns the entire path including the name of the file
-    private boolean unpackZip(String path, String zipname, Context context)
+    private boolean unpackZip(String path, String zipname)
     {
-
+        InputStream is;
+        ZipInputStream zis;
         try
         {
-            InputStream is;
-            ZipInputStream zis;
             String filename;
             is = new FileInputStream(path + zipname);
             zis = new ZipInputStream(new BufferedInputStream(is));
@@ -267,30 +323,37 @@ public class FileFragment extends AppCompatActivity {
             long size = 0;
 
 
-            File bookFolder = new File(context.getFilesDir() + "/" + zipname);
+            File bookFolder = new File(getFilesDir().getAbsolutePath() + "/" + zipname);
+
             if (bookFolder.exists()==false) {
-
-                while ((ze = zis.getNextEntry()) != null){
+/*                while ((ze = zis.getNextEntry()) != null){
                     size += ze.getSize();
-                }
+                }*/
 
-                if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
-
+//                if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
+                    //do not need the line below
                     bookFolder.mkdirs();
-
+                    Log.d("printlogger", "Did we get here? #1");
                     while ((ze = zis.getNextEntry()) != null) {
                         filename = ze.getName();
-
+                        Log.d("printlogger", "Did we get here? #2" + ze.getName());
+                        Log.d("printlogger", "Did we get here? #2");
                         // Need to create directories if not exists, or
                         // it will generate an exception...
-                        if (ze.isDirectory()) {
-                            File fmd = new File(context.getFilesDir() + "/" + zipname + "/" + filename);
+                        File fmd = new File(getFilesDir().getAbsolutePath() + "/" + zipname + "/" + filename);
+                        fmd.getParentFile().mkdirs();
+                        /*if (ze.isDirectory()) {
+                            Log.d("printlogger", "Did we get here? #3");
+                            File fmd = new File(getFilesDir().getAbsolutePath() + "/" + zipname + "/" + filename);
                             fmd.mkdirs();
                             continue;
-                        }
+                        }*/
 
-                        FileOutputStream fout = new FileOutputStream(context.getFilesDir() + "/" + zipname + "/" + filename);
 
+                        Log.d("printlogger", "Did we get here? #4");
+                        FileOutputStream fout = new FileOutputStream(getFilesDir().getAbsolutePath() + "/" + zipname + "/" + filename);
+
+                        Log.d("printlogger", getFilesDir().getAbsolutePath() + "/" + zipname + "/" + filename);
                         while ((count = zis.read(buffer)) != -1) {
                             fout.write(buffer, 0, count);
                         }
@@ -301,16 +364,18 @@ public class FileFragment extends AppCompatActivity {
 
                     zis.close();
 
+
                     addBook(zipname);
 
+                    //send variables to main activity in order to update listview
                     Intent i = new Intent(FileFragment.this, HomeActivity.class);
                     startActivity(i);
 
-                } else {
+/*                } else {
                     //toast, "device is full"
                     Toast.makeText(getApplicationContext(), "Not enough space on device.", Toast.LENGTH_LONG).show();
 
-                }
+                }*/
             } else {
                 //toast, "already in collection"
                 Toast.makeText(getApplicationContext(), "Already added.", Toast.LENGTH_LONG).show();
@@ -328,21 +393,23 @@ public class FileFragment extends AppCompatActivity {
 
 
 
-
     public void addBook(String fileName) {
 
-        myParser mp = new myParser(fileName);
+
         try {
-            Book book = mp.getMetaData(fileName);
+            myParser mp = new myParser(fileName);
+            //unsure if fileName passes in object or method
+            Book book = mp.getMetaData();
             //add book to database
 
 
 
-            SQLiteOpenHelper dbHelper = new HomeActivity.dbHelper(this);
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteOpenHelper helper = new HomeActivity.dbHelper(this);
+            SQLiteDatabase db = helper.getWritableDatabase();
 
             // Create a new map of values, where column names are the keys
             ContentValues values = new ContentValues();
+
             values.put("folder_name", fileName);
             values.put("title", book.getTitle());
             values.put("author", book.getAuthor());
@@ -351,8 +418,6 @@ public class FileFragment extends AppCompatActivity {
 
             // Insert the new record
             db.insert("book", null, values);
-
-
 
 
 /*            SQLiteDatabase db;

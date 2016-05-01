@@ -25,6 +25,11 @@
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
+
+
+
+
+
     </application>
 
     <uses-permission android:name="string"

@@ -32,9 +32,9 @@
 
     </application>
 
-    <uses-permission android:name="string"
-        android:maxSdkVersion="23" />
-
+    <uses-sdk android:minSdkVersion="15"
+        android:targetSdkVersion="23"
+        />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 

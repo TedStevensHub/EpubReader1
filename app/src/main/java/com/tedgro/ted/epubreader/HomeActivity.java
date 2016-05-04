@@ -71,6 +71,7 @@ public class HomeActivity extends AppCompatActivity {
                     list.add(title);
                     alist.add(author);
                     i++;
+                    c.moveToNext();
                 }
         }
 

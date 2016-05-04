@@ -200,31 +200,9 @@ public class FileFragment extends AppCompatActivity {
                         book.setPubDate(parser.nextText());
                     }
 
-/*                    break;
-                case XmlPullParser.END_TAG:
-                    name = parser.getName();
-                    if (name.equalsIgnoreCase("metadata") && book != null) {
-                        products.add(currentProduct);
-                    }*/
             }
             eventType = parser.next();
         }
-
-        //add book to database
-        SQLiteOpenHelper helper = new HomeActivity.dbHelper(getApplicationContext());
-        SQLiteDatabase db = helper.getWritableDatabase();
-        Log.d("printlogger", "#5 in parseXML()");
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-
-        values.put("folder_name", "tempname");
-        values.put("title", book.getTitle());
-        values.put("author", book.getAuthor());
-        values.put("description", book.getDescription());
-        values.put("date", book.getPubDate());
-
-        // Insert the new record
-        db.insert("book", null, values);
 
         return book;
     }
@@ -279,47 +257,6 @@ public class FileFragment extends AppCompatActivity {
             return false;
         }
     }
-
-
-
-
-
-
-
-/*
-    public void unpackZip(File zipFile, File targetDirectory, String zipname) throws IOException {
-        ZipInputStream zis = new ZipInputStream(
-                new BufferedInputStream(new FileInputStream(zipFile)));
-        try {
-            ZipEntry ze;
-            int count;
-            byte[] buffer = new byte[8192];
-            while ((ze = zis.getNextEntry()) != null) {
-                File file = new File(targetDirectory, ze.getName());
-                File dir = ze.isDirectory() ? file : file.getParentFile();
-                if (!dir.isDirectory() && !dir.mkdirs())
-                    throw new FileNotFoundException("Failed to ensure directory: " +
-                            dir.getAbsolutePath());
-                if (ze.isDirectory())
-                    continue;
-                FileOutputStream fout = new FileOutputStream(file);
-                try {
-                    while ((count = zis.read(buffer)) != -1)
-                        fout.write(buffer, 0, count);
-                } finally {
-                    fout.close();
-                }
-            *//* if time should be restored as well
-            long time = ze.getTime();
-            if (time > 0)
-                file.setLastModified(time);
-            *//*
-            }
-        } finally {
-            zis.close();
-            addBook(zipname);
-        }
-    }*/
 
 
 
@@ -421,7 +358,7 @@ public class FileFragment extends AppCompatActivity {
             Book book = mp.getMetaData();
             Log.d("printlogger", "After getMetaData()");
 
-/*            //add book to database
+            //add book to database
             SQLiteOpenHelper helper = new HomeActivity.dbHelper(this);
             SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -435,8 +372,8 @@ public class FileFragment extends AppCompatActivity {
             values.put("date", book.getPubDate());
 
             // Insert the new record
-            db.insert("book", null, values);*/
-
+            db.insert("book", null, values);
+            values.clear();
 
 /*            SQLiteDatabase db;
             db=SQLiteDatabase.openDatabase("LibraryDB",  null, SQLiteDatabase.OPEN_READWRITE);

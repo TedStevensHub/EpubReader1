@@ -221,7 +221,7 @@ public class FileFragment extends AppCompatActivity {
         // gets the files in the directory
         File fileDirectory = new File(Environment.getExternalStorageDirectory()+"/eBooks/");
         // lists all the files into an array
-        File[] dirFiles = fileDirectory.listFiles(new EpubFileFilter());
+        File[] dirFiles = fileDirectory.listFiles(new EpubFileFilter(new String[] {"epub"}));
 
         //read files from eBooks folder and make an array of string
         public ArrayList<String> getFiles() {
@@ -239,11 +239,17 @@ public class FileFragment extends AppCompatActivity {
 
 
 
-    //epub filter
+    //file filter taking in array of file extensions, can be used to scan directories
     public class EpubFileFilter implements FileFilter {
 
-        private final String[] okFileExtensions =
-                new String[] {"epub"};
+        private String[] okFileExtensions;
+        /*private final String[] okFileExtensions =
+                new String[] {"epub"};*/
+
+
+        public EpubFileFilter (String[] extensions) {
+            okFileExtensions = extensions;
+        }
 
         public boolean accept(File file)
         {
@@ -375,10 +381,6 @@ public class FileFragment extends AppCompatActivity {
             db.insert("book", null, values);
             values.clear();
 
-/*            SQLiteDatabase db;
-            db=SQLiteDatabase.openDatabase("LibraryDB",  null, SQLiteDatabase.OPEN_READWRITE);
-            db.execSQL("INSERT INTO book VALUES('"+fileName+"','"+book.getTitle()+"','"+
-                    book.getAuthor()+"','"+book.getDescription()+"','"+book.getPubDate()+"');");*/
 
         } catch (Exception e) {
             e.printStackTrace();

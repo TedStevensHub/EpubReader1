@@ -9,4 +9,9 @@
         <item name="android:textColor">@color/homeTextColor</item>
     </style>
 
+    <style name = "NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name = "android:windowActionBar">false</item>
+        <item name = "android:windowNoTitle">true</item>
+    </style>
+
 </resources>

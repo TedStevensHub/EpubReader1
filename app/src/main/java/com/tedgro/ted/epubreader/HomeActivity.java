@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
@@ -38,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
     //get book titles from database
     ArrayList<String> list = new ArrayList<String>();
     ArrayList<String> alist = new ArrayList<String>();
+    ArrayList<String> flist = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,25 +51,16 @@ public class HomeActivity extends AppCompatActivity {
         SQLiteDatabase db = helper.getReadableDatabase();
 
 
-        //testdata
- /*       ContentValues values = new ContentValues();
-        values.put("folder_name", "hi");
-        values.put("title", "title");
-        values.put("author", "ted");
-        values.put("description", "im a book");
-        values.put("date", "1992");
-        // Insert the new record
-        db.insert("book", null, values);*/
-        //end testdata
 
-
-        Cursor c=db.query("book", new String[] {"title", "author"}, null, null, null, null, null);
+        Cursor c=db.query("book", new String[] {"title", "author", "folder_name"}, null, null, null, null, null);
         if (c != null) {
             int i = 0;
             c.moveToFirst();
                 while (i<c.getCount()) {
+                    String folder = c.getString(c.getColumnIndex("folder_name"));
                     String title = c.getString(c.getColumnIndex("title"));
                     String author = c.getString(c.getColumnIndex("author"));
+                    flist.add(folder);
                     list.add(title);
                     alist.add(author);
                     i++;
@@ -83,6 +76,19 @@ public class HomeActivity extends AppCompatActivity {
         ListView lView = (ListView)findViewById(R.id.bookListView);
         lView.setAdapter(adapter);
 
+
+
+        //onclick for each book
+        lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position,
+                                    long arg3)
+            {
+                String folder = flist.get(position);
+
+            }
+        });
 
     }
 
@@ -107,22 +113,6 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
-
-/*    @Override
-    public void onResume() {
-        super.onResume();
-
-        Bundle intent = getIntent().getExtras();
-        if (intent != null) {
-            String title = intent.getString("title");
-            String author = intent.getString("author");
-            list.add(title);
-            alist.add(author);
-        }
-
-        MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
-        adapter.notifyDataSetChanged();
-    }*/
 
 
 
@@ -267,9 +257,16 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
 
+
+
             return view;
         }
     }
+
+
+
+
+
 
 
 

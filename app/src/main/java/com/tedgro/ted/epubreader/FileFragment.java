@@ -1,5 +1,7 @@
 package com.tedgro.ted.epubreader;
 
+import com.tedgro.ted.epubreader.HomeActivity;
+
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -137,22 +139,24 @@ public class FileFragment extends AppCompatActivity {
 
         //does zipname pass to class or method of class
         public Book getMetaData() throws Exception {
+            Log.d("printlogger", "#1 in getMetaData()");
             Book book = new Book();
             XmlPullParserFactory pullParserFactory;
             try {
                 pullParserFactory = XmlPullParserFactory.newInstance();
-                //pullParserFactory.setNamespaceAware(false);
+                pullParserFactory.setNamespaceAware(false);
 
                 XmlPullParser parser = pullParserFactory.newPullParser();
 
 
                 InputStream in_s = new FileInputStream(getFilesDir().getAbsolutePath() + "/" + folderName + "/OEBPS/content.opf");
-                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
                 parser.setInput(in_s, null);
 
                 //***do i have to set book=parseXML in order to receive the return object
+                Log.d("printlogger", "#2 in getMetaData()");
                 book=parseXML(parser);
-
+                Log.d("printlogger", "#3 in getMetaData()");
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -174,23 +178,25 @@ public class FileFragment extends AppCompatActivity {
 
         int eventType = parser.getEventType();
         Book book = new Book();
-
+        Log.d("printlogger", "#1 in parseXML()");
         while (eventType != XmlPullParser.END_DOCUMENT) {
-            String name = null;
+            String name;
             switch (eventType) {
                 case XmlPullParser.START_DOCUMENT:
-
+                    Log.d("printlogger", "#2.1 in parseXML()");
                     break;
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
-
-                    if (name == "title") {
+                    //&& not already written to
+                    if (name.equals("title")) {
+                        Log.d("printlogger", "#3 in parseXML()");
                         book.setTitle(parser.nextText());
-                    } else if (name == "creator") {
+                        Log.d("printlogger", "#4 in parseXML() " + book.getTitle());
+                    } else if (name.equals("creator")) {
                         book.setAuthor(parser.nextText());
-                    } else if (name == "description") {
+                    } else if (name.equals("description")) {
                         book.setDescription(parser.nextText());
-                    } else if (name == "date") {
+                    } else if (name.equals("date")) {
                         book.setPubDate(parser.nextText());
                     }
 
@@ -203,10 +209,23 @@ public class FileFragment extends AppCompatActivity {
             }
             eventType = parser.next();
         }
-        System.out.println(book.getTitle());
-        System.out.println(book.getAuthor());
-        System.out.println(book.getDescription());
-        System.out.println(book.getPubDate());
+
+        //add book to database
+        SQLiteOpenHelper helper = new HomeActivity.dbHelper(getApplicationContext());
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Log.d("printlogger", "#5 in parseXML()");
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+
+        values.put("folder_name", "tempname");
+        values.put("title", book.getTitle());
+        values.put("author", book.getAuthor());
+        values.put("description", book.getDescription());
+        values.put("date", book.getPubDate());
+
+        // Insert the new record
+        db.insert("book", null, values);
+
         return book;
     }
 
@@ -400,10 +419,9 @@ public class FileFragment extends AppCompatActivity {
             myParser mp = new myParser(fileName);
             //unsure if fileName passes in object or method
             Book book = mp.getMetaData();
-            //add book to database
+            Log.d("printlogger", "After getMetaData()");
 
-
-
+/*            //add book to database
             SQLiteOpenHelper helper = new HomeActivity.dbHelper(this);
             SQLiteDatabase db = helper.getWritableDatabase();
 
@@ -417,7 +435,7 @@ public class FileFragment extends AppCompatActivity {
             values.put("date", book.getPubDate());
 
             // Insert the new record
-            db.insert("book", null, values);
+            db.insert("book", null, values);*/
 
 
 /*            SQLiteDatabase db;

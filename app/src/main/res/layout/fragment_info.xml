@@ -5,4 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tedgro.ted.epubreader.FragmentInfo">
 
+    <TextView
+        android:id="@+id/info_textview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="15dp"
+        android:textSize="20sp"
+        android:layout_margin="0dp"
+        android:text=""
+        android:textColor="@color/green1"
+        />
 </LinearLayout>

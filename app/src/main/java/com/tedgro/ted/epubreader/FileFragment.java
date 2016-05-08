@@ -188,15 +188,15 @@ public class FileFragment extends AppCompatActivity {
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
                     //&& not already written to
-                    if (name.equals("title")) {
+                    if (name.equals("title") && book.getTitle().equals("")) {
                         Log.d("printlogger", "#3 in parseXML()");
                         book.setTitle(parser.nextText());
                         Log.d("printlogger", "#4 in parseXML() " + book.getTitle());
-                    } else if (name.equals("creator")) {
+                    } else if (name.equals("creator") && book.getAuthor().equals("")) {
                         book.setAuthor(parser.nextText());
-                    } else if (name.equals("description")) {
+                    } else if (name.equals("description") && book.getDescription().equals("")) {
                         book.setDescription(parser.nextText());
-                    } else if (name.equals("date")) {
+                    } else if (name.equals("date") && book.getPubDate().equals("")) {
                         book.setPubDate(parser.nextText());
                     }
 
@@ -274,11 +274,12 @@ public class FileFragment extends AppCompatActivity {
     {
         InputStream is;
         ZipInputStream zis;
+        ZipInputStream zis2;
         try
         {
             String filename;
             is = new FileInputStream(path + zipname);
-            zis = new ZipInputStream(new BufferedInputStream(is));
+            zis2 = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry ze;
             byte[] buffer = new byte[1024];
             int count;
@@ -288,11 +289,14 @@ public class FileFragment extends AppCompatActivity {
             File bookFolder = new File(getFilesDir().getAbsolutePath() + "/" + zipname);
 
             if (bookFolder.exists()==false) {
-/*                while ((ze = zis.getNextEntry()) != null){
+                while ((ze = zis2.getNextEntry()) != null){
                     size += ze.getSize();
-                }*/
+                    zis2.closeEntry();
+                }
+                zis2.close();
 
-//                if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
+                zis = new ZipInputStream(new BufferedInputStream(is));
+                if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
                     //do not need the line below
                     bookFolder.mkdirs();
                     Log.d("printlogger", "Did we get here? #1");
@@ -333,11 +337,11 @@ public class FileFragment extends AppCompatActivity {
                     Intent i = new Intent(FileFragment.this, HomeActivity.class);
                     startActivity(i);
 
-/*                } else {
+                } else {
                     //toast, "device is full"
                     Toast.makeText(getApplicationContext(), "Not enough space on device.", Toast.LENGTH_LONG).show();
 
-                }*/
+                }
             } else {
                 //toast, "already in collection"
                 Toast.makeText(getApplicationContext(), "Already added.", Toast.LENGTH_LONG).show();

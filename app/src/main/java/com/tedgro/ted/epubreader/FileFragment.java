@@ -273,13 +273,14 @@ public class FileFragment extends AppCompatActivity {
     private boolean unpackZip(String path, String zipname)
     {
         InputStream is;
+        InputStream is2;
         ZipInputStream zis;
         ZipInputStream zis2;
         try
         {
             String filename;
-            is = new FileInputStream(path + zipname);
-            zis2 = new ZipInputStream(new BufferedInputStream(is));
+            is2 = new FileInputStream(path + zipname);
+            zis2 = new ZipInputStream(new BufferedInputStream(is2));
             ZipEntry ze;
             byte[] buffer = new byte[1024];
             int count;
@@ -295,6 +296,7 @@ public class FileFragment extends AppCompatActivity {
                 }
                 zis2.close();
 
+                is = new FileInputStream(path + zipname);
                 zis = new ZipInputStream(new BufferedInputStream(is));
                 if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
                     //do not need the line below

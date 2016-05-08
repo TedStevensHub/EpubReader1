@@ -1,5 +1,6 @@
 package com.tedgro.ted.epubreader;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -20,14 +21,23 @@ public class FragmentInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_info);
 
+        String whereint = "";
+        Integer bookpos = 0;
+        Bundle extras = getIntent().getExtras();
+        whereint = extras.getString("bookpos");
+        bookpos = Integer.parseInt(whereint);
+        bookpos+=1;
+        whereint=Integer.toString(bookpos);
 
+
+        /*Cursor c=db.query("book", new String[] {"title", "author", "description", "date"}, "id=?", new String[] {"1"}, null, null, null);*/
 
         HomeActivity.dbHelper helper = new HomeActivity.dbHelper(this);
         SQLiteDatabase db = helper.getReadableDatabase();
 
 
 
-        Cursor c=db.query("book", new String[] {"title", "author", "description", "date"}, null, null, null, null, null);
+        Cursor c=db.query("book", new String[] {"title", "author", "description", "date"}, "id=?", new String[] {whereint}, null, null, null);
         if (c != null) {
             int i = 0;
             c.moveToFirst();
@@ -44,14 +54,15 @@ public class FragmentInfo extends AppCompatActivity {
                 c.moveToNext();
             }
         }
+        db.close();
 
-        String info_string = infolist.get(1)+"\n"+infolist.get(2)+"\n"+"Description: "+infolist.get(3)+"\n"+"Date: "+infolist.get(4);
+        String info_string = infolist.get(0)+"\n"+infolist.get(1)+"\n\n"+"Description: "+infolist.get(2)+"\n\n"+"Date: "+infolist.get(3);
 
         TextView infotext = (TextView)findViewById(R.id.info_textview);
         infotext.setText(info_string);
+        infolist.clear();
 
     }
-
 
 
 

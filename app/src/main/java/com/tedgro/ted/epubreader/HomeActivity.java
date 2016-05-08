@@ -67,7 +67,7 @@ public class HomeActivity extends AppCompatActivity {
                     c.moveToNext();
                 }
         }
-
+        db.close();
 
         //instantiate custom adapter
         MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
@@ -252,7 +252,9 @@ public class HomeActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //open info activity
-                    Intent i = new Intent(HomeActivity.this, FragmentInfo.class);
+                    Intent i = new Intent(getApplicationContext(), FragmentInfo.class);
+                    String pos = Integer.toString(position);
+                    i.putExtra("bookpos", pos);
                     startActivity(i);
                 }
             });

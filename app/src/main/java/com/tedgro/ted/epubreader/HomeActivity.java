@@ -85,7 +85,10 @@ public class HomeActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapter, View v, int position,
                                     long arg3)
             {
+                Intent i = new Intent(getApplicationContext(), PagerActivity.class);
                 String folder = flist.get(position);
+                i.putExtra("folder", folder);
+                startActivity(i);
 
             }
         });

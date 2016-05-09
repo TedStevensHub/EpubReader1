@@ -30,7 +30,6 @@ public class FragmentInfo extends AppCompatActivity {
         whereint=Integer.toString(bookpos);
 
 
-        /*Cursor c=db.query("book", new String[] {"title", "author", "description", "date"}, "id=?", new String[] {"1"}, null, null, null);*/
 
         HomeActivity.dbHelper helper = new HomeActivity.dbHelper(this);
         SQLiteDatabase db = helper.getReadableDatabase();

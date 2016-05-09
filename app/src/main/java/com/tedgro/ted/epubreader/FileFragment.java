@@ -240,7 +240,7 @@ public class FileFragment extends AppCompatActivity {
 
 
     //file filter taking in array of file extensions, can be used to scan directories
-    public class EpubFileFilter implements FileFilter {
+    public static class EpubFileFilter implements FileFilter {
 
         private String[] okFileExtensions;
         /*private final String[] okFileExtensions =

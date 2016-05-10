@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -41,6 +42,10 @@ import java.util.zip.ZipInputStream;
  */
 public class FileFragment extends AppCompatActivity {
 
+    private ArrayList<String> imgHrefArray;
+    private ArrayList<String> imgIdArray;
+    private ArrayList<String> htmlHrefArray;
+    private ArrayList<String> htmlIdArray;
     private ListView lv;
 
     //path to folder where all files are
@@ -149,7 +154,7 @@ public class FileFragment extends AppCompatActivity {
                 XmlPullParser parser = pullParserFactory.newPullParser();
 
 
-                InputStream in_s = new FileInputStream(getFilesDir().getAbsolutePath() + "/" + folderName + "/OEBPS/content.opf");
+                InputStream in_s = new FileInputStream(getOpf(folderName));
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
                 parser.setInput(in_s, null);
 
@@ -198,7 +203,16 @@ public class FileFragment extends AppCompatActivity {
                         book.setDescription(parser.nextText());
                     } else if (name.equals("date") && book.getPubDate().equals("")) {
                         book.setPubDate(parser.nextText());
-                    }
+                    } else if (name.equals("item")) {
+                        String mt = parser.getAttributeValue(null, "media-type");
+                        if(mt.equals("image/jpeg")||mt.equals("image/png")||mt.equals("image/gif")) {
+                            imgIdArray.add(parser.getAttributeValue(null, "id"));
+                            imgHrefArray.add(parser.getAttributeValue(null, "href"));
+                        } else if (mt.equals("application/xhtml+xml")) {
+                            htmlIdArray.add(parser.getAttributeValue(null, "id"));
+                            htmlHrefArray.add(parser.getAttributeValue(null, "href"));
+                        }
+                }
 
             }
             eventType = parser.next();
@@ -255,7 +269,7 @@ public class FileFragment extends AppCompatActivity {
         {
             for (String extension : okFileExtensions)
             {
-                if (file.getName().toLowerCase().endsWith(extension))
+                if (file.getName().toLowerCase().endsWith(extension) || file.isDirectory())
                 {
                     return true;
                 }
@@ -279,7 +293,9 @@ public class FileFragment extends AppCompatActivity {
         try
         {
             String filename;
-            is2 = new FileInputStream(path + zipname);
+            String zipnamereal=zipname;
+            zipname=zipname.substring(0, zipname.lastIndexOf('.'));
+            is2 = new FileInputStream(path + zipnamereal);
             zis2 = new ZipInputStream(new BufferedInputStream(is2));
             ZipEntry ze;
             byte[] buffer = new byte[1024];
@@ -296,7 +312,7 @@ public class FileFragment extends AppCompatActivity {
                 }
                 zis2.close();
 
-                is = new FileInputStream(path + zipname);
+                is = new FileInputStream(path + zipnamereal);
                 zis = new ZipInputStream(new BufferedInputStream(is));
                 if (size <= Environment.getExternalStorageDirectory().getUsableSpace()) {
                     //do not need the line below
@@ -377,20 +393,54 @@ public class FileFragment extends AppCompatActivity {
             // Create a new map of values, where column names are the keys
             ContentValues values = new ContentValues();
 
+            //trim file extension
             values.put("folder_name", fileName);
             values.put("title", book.getTitle());
             values.put("author", book.getAuthor());
             values.put("description", book.getDescription());
             values.put("date", book.getPubDate());
-
             // Insert the new record
             db.insert("book", null, values);
             values.clear();
 
+            for(int i=0; i<imgIdArray.size(); i++) {
+                values.put("folder_name", fileName);
+                values.put("type", "img");
+                values.put("path", imgHrefArray.get(i));
+                values.put("r_id", imgIdArray.get(i));
+            }
+            for(int i=0; i<htmlIdArray.size(); i++) {
+                values.put("folder_name", fileName);
+                values.put("type", "html");
+                values.put("path", htmlHrefArray.get(i));
+                values.put("r_id", htmlIdArray.get(i));
+            }
+            db.insert("resources", null, values);
+            db.close();
+
+            values.clear();
+            imgHrefArray.clear();
+            imgIdArray.clear();
+            htmlHrefArray.clear();
+            htmlIdArray.clear();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+
+
+    public String getOpf(String foldername) {
+
+        String path = getFilesDir().getAbsolutePath() + "/" + foldername;
+        ArrayList<String> filePathList;
+        PagerActivity.fileFinder ff = new PagerActivity.fileFinder();
+        filePathList = ff.getFiles(new String[] {"opf"}, path);
+        for (int i = 0; i < filePathList.size(); i++) {
+        }
+        return filePathList.get(0);
     }
 
 
@@ -470,9 +520,6 @@ public class FileFragment extends AppCompatActivity {
             this._date = date;
         }
     }
-
-
-
 
 
 

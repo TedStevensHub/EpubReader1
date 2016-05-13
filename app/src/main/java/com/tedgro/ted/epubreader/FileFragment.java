@@ -144,7 +144,7 @@ public class FileFragment extends AppCompatActivity {
 
         //does zipname pass to class or method of class
         public Book getMetaData() throws Exception {
-            Log.d("printlogger", "#1 in getMetaData()");
+
             Book book = new Book();
             XmlPullParserFactory pullParserFactory;
             try {
@@ -153,15 +153,17 @@ public class FileFragment extends AppCompatActivity {
 
                 XmlPullParser parser = pullParserFactory.newPullParser();
 
-
-                InputStream in_s = new FileInputStream(getOpf(folderName));
+                String opfstr = getOpf(folderName);
+                InputStream in_s = new FileInputStream(opfstr);
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
                 parser.setInput(in_s, null);
 
                 //***do i have to set book=parseXML in order to receive the return object
-                Log.d("printlogger", "#2 in getMetaData()");
+
                 book=parseXML(parser);
-                Log.d("printlogger", "#3 in getMetaData()");
+                File opfpath = new File(opfstr);
+                book.setPath(opfpath.getParent());
+
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -171,7 +173,9 @@ public class FileFragment extends AppCompatActivity {
         }
     }
 
+    public void writeDirectory() {
 
+    }
 
 
 
@@ -399,6 +403,7 @@ public class FileFragment extends AppCompatActivity {
             values.put("author", book.getAuthor());
             values.put("description", book.getDescription());
             values.put("date", book.getPubDate());
+            values.put("resources_path", book.getPath());
             // Insert the new record
             db.insert("book", null, values);
             values.clear();
@@ -446,6 +451,8 @@ public class FileFragment extends AppCompatActivity {
 
 
 
+
+
     //Book object class
     public class Book {
         int _id = 0;
@@ -454,27 +461,13 @@ public class FileFragment extends AppCompatActivity {
         String _author = "";
         String _description = "";
         String _date = "";
+        String _path = "";
 
         public Book(){
 
         }
 
-        public Book(int id, String foldername, String title, String author, String description, String date) {
-            this._id=id;
-            this._foldername=foldername;
-            this._title=title;
-            this._author=author;
-            this._description=description;
-            this._date=date;
-        }
 
-        public Book(String foldername, String title, String author, String description, String date) {
-            this._foldername=foldername;
-            this._title=title;
-            this._author=author;
-            this._description=description;
-            this._date=date;
-        }
 
         public int getId(){
             return this._id;
@@ -518,6 +511,14 @@ public class FileFragment extends AppCompatActivity {
 
         public void setPubDate(String date){
             this._date = date;
+        }
+
+        public void setPath(String path){
+            this._path = path;
+        }
+
+        public String getPath(){
+            return this._path;
         }
     }
 

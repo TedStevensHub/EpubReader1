@@ -103,8 +103,7 @@ public class HomeActivity extends AppCompatActivity {
                                     long arg3)
             {
                 Intent i = new Intent(getApplicationContext(), PagerActivity.class);
-                String folder = flist.get(position);
-                i.putExtra("folder", folder);
+                i.putExtra("bookpos", position);
                 startActivity(i);
 
             }
@@ -148,7 +147,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS book(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), title nvarchar(200), author nvarchar(200), description nvarchar(400), date nvarchar(50));");
+            db.execSQL("CREATE TABLE IF NOT EXISTS book(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), title nvarchar(200), author nvarchar(200), description nvarchar(400), date nvarchar(50), resources_path nvarchar(400));");
             db.execSQL("CREATE TABLE IF NOT EXISTS resources(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), type nvarchar(50), path nvarchar(200), r_id nvarchar(100));");
         }
 

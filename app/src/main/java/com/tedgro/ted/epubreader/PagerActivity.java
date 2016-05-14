@@ -4,6 +4,7 @@ package com.tedgro.ted.epubreader;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
@@ -12,14 +13,20 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -91,6 +98,59 @@ public class PagerActivity extends FragmentActivity {
 
 
 
+    }
+
+
+
+
+    public String concatHtmlString() throws Exception {
+        String htmlstring="";
+        for (int i=0; i<pathList.size(); i++) {
+            if (typeList.get(i).equals("html")) {
+
+                htmlstring = "\n"+getStringFromFile(pathList.get(i));
+            }
+        }
+        return htmlstring;
+    }
+
+/*    private class ImageGetter implements Html.ImageGetter {
+
+        public Drawable getDrawable(String source) {
+            int id;
+            if (source.equals("hughjackman.jpg")) {
+                id = R.drawable.hughjackman;
+            }
+            else {
+                return null;
+            }
+
+            Drawable d = getResources().getDrawable(id);
+            d.setBounds(0,0,d.getIntrinsicWidth(),d.getIntrinsicHeight());
+            return d;
+        }
+    }*/
+
+
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (String filePath) throws Exception {
+        File fl = new File(filePath);
+        FileInputStream fin = new FileInputStream(fl);
+        String htmlString = convertStreamToString(fin);
+        //Make sure you close all streams.
+        fin.close();
+        return htmlString;
     }
 
 

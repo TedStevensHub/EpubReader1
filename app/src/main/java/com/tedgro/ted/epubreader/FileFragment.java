@@ -397,13 +397,14 @@ public class FileFragment extends AppCompatActivity {
             // Create a new map of values, where column names are the keys
             ContentValues values = new ContentValues();
 
+            String path = book.getPath();
             //trim file extension
             values.put("folder_name", fileName);
             values.put("title", book.getTitle());
             values.put("author", book.getAuthor());
             values.put("description", book.getDescription());
             values.put("date", book.getPubDate());
-            values.put("resources_path", book.getPath());
+            values.put("resources_path", path);
             // Insert the new record
             db.insert("book", null, values);
             values.clear();
@@ -411,14 +412,14 @@ public class FileFragment extends AppCompatActivity {
             for(int i=0; i<imgIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "img");
-                values.put("path", imgHrefArray.get(i));
-                values.put("r_id", imgIdArray.get(i));
+                values.put("path", path + "/" + imgHrefArray.get(i));
+                values.put("r_id", path + "/" + imgIdArray.get(i));
             }
             for(int i=0; i<htmlIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "html");
-                values.put("path", htmlHrefArray.get(i));
-                values.put("r_id", htmlIdArray.get(i));
+                values.put("path", path + "/" + htmlHrefArray.get(i));
+                values.put("r_id", path + "/" + htmlIdArray.get(i));
             }
             db.insert("resources", null, values);
             db.close();

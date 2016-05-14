@@ -42,6 +42,7 @@ public class PagerActivity extends FragmentActivity {
     String resources_path = "";
 
     private TextView textview;
+
     private static final int NUM_PAGES = 5;
 
     private ViewPager myPager;
@@ -102,6 +103,14 @@ public class PagerActivity extends FragmentActivity {
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         myPager.setAdapter(myPagerAdapter);
 
+        try {
+            Spanned myspan = strToSpanned();
+            textview.setText(myspan);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
@@ -109,6 +118,12 @@ public class PagerActivity extends FragmentActivity {
 
     }*/
 
+
+        public Spanned strToSpanned() throws Exception {
+        String htmlstring = concatHtmlString();
+        Spanned myspan = Html.fromHtml(htmlstring);
+        return myspan;
+    }
 
     //replace imagegetter with my own class
 /*    public Spanned strToSpanned(String string) throws Exception {

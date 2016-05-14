@@ -412,14 +412,14 @@ public class FileFragment extends AppCompatActivity {
             for(int i=0; i<imgIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "img");
-                values.put("path", path + "/" + imgHrefArray.get(i));
-                values.put("r_id", path + "/" + imgIdArray.get(i));
+                values.put("path", imgHrefArray.get(i));
+                values.put("r_id", imgIdArray.get(i));
             }
             for(int i=0; i<htmlIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "html");
-                values.put("path", path + "/" + htmlHrefArray.get(i));
-                values.put("r_id", path + "/" + htmlIdArray.get(i));
+                values.put("path", htmlHrefArray.get(i));
+                values.put("r_id", htmlIdArray.get(i));
             }
             db.insert("resources", null, values);
             db.close();

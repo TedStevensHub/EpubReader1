@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +41,7 @@ public class PagerActivity extends FragmentActivity {
     ArrayList<String> typeList = new ArrayList<>();
     String resources_path = "";
 
+    private TextView textview;
     private static final int NUM_PAGES = 5;
 
     private ViewPager myPager;
@@ -83,8 +85,12 @@ public class PagerActivity extends FragmentActivity {
                 c.moveToNext();
             }
         }
+
+
         db.close();
         //end gathering meta data
+
+
 
 
 
@@ -96,40 +102,43 @@ public class PagerActivity extends FragmentActivity {
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         myPager.setAdapter(myPagerAdapter);
 
-
-
     }
 
 
+    /*private Spanned editSpannable() {
 
+    }*/
+
+
+    //replace imagegetter with my own class
+/*    public Spanned strToSpanned(String string) throws Exception {
+        String htmlstring = concatHtmlString();
+        Spanned myspan = Html.fromHtml(htmlstring, new Html.ImageGetter(){
+            @Override public Drawable getDrawable(String source) {
+                Drawable drawFromPath;
+                int path = x;
+                drawFromPath = (Drawable) PagerActivity.this.getResources().getDrawable(path);
+                //set bounds
+                drawFromPath.setBounds(0, 0, textview.getWidth(), textview.getHeight());
+                return drawFromPath;
+            }
+        }, null);
+        return myspan;
+    }*/
 
     public String concatHtmlString() throws Exception {
+
         String htmlstring="";
         for (int i=0; i<pathList.size(); i++) {
             if (typeList.get(i).equals("html")) {
 
-                htmlstring = "\n"+getStringFromFile(pathList.get(i));
+                htmlstring += "\n"+getStringFromFile(pathList.get(i));
             }
         }
         return htmlstring;
     }
 
-/*    private class ImageGetter implements Html.ImageGetter {
 
-        public Drawable getDrawable(String source) {
-            int id;
-            if (source.equals("hughjackman.jpg")) {
-                id = R.drawable.hughjackman;
-            }
-            else {
-                return null;
-            }
-
-            Drawable d = getResources().getDrawable(id);
-            d.setBounds(0,0,d.getIntrinsicWidth(),d.getIntrinsicHeight());
-            return d;
-        }
-    }*/
 
 
 
@@ -177,11 +186,14 @@ public class PagerActivity extends FragmentActivity {
     @SuppressLint("ValidFragment")
     public class PageFragment extends Fragment {
 
+
+
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             ViewGroup rootView = (ViewGroup) inflater.inflate(
                     R.layout.scrollview_layout, container, false);
+
+            textview = (TextView) rootView.findViewById(R.id.booktextview);
 
             return rootView;
         }

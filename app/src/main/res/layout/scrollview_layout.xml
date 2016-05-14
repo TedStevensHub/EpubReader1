@@ -10,13 +10,9 @@
     android:background="@color/black">
 
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/content"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
 
     <TextView
+        android:id="@+id/booktextview"
         android:textSize="16sp"
         android:paddingLeft="20px"
         android:paddingRight="20px"
@@ -28,7 +24,6 @@
         android:text="wodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdhawodhqwoidhlqoiwdhqoiwdjanjsdpowjqpo;d;jeqoliwdha" />
 
 
-</ScrollView>
 
     <fragment
         android:name="com.tedgro.ted.epubreader.PagerActivity$SeekBarFragment"

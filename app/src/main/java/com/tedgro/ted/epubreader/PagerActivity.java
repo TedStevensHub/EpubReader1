@@ -1,6 +1,9 @@
 package com.tedgro.ted.epubreader;
 
-
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -39,11 +42,15 @@ public class PagerActivity extends FragmentActivity {
     ArrayList<String> pathList = new ArrayList<>();
     ArrayList<String> idList = new ArrayList<>();
     ArrayList<String> typeList = new ArrayList<>();
+    ArrayList<String> spineList = new ArrayList<>();
+    //add spine data
+
+    ArrayList<Spanned> pageArray = new ArrayList<>();
     String resources_path = "";
+    String folder = "";
 
     private TextView textview;
 
-    private static final int NUM_PAGES = 5;
 
     private ViewPager myPager;
     private PagerAdapter myPagerAdapter;
@@ -65,10 +72,11 @@ public class PagerActivity extends FragmentActivity {
         HomeActivity.dbHelper helper = new HomeActivity.dbHelper(this);
         SQLiteDatabase db = helper.getReadableDatabase();
 
-        Cursor c=db.query("book", new String[] {"resources_path"}, "id=?", new String[] {whereint}, null, null, null);
+        Cursor c=db.query("book", new String[] {"resources_path", "folder_name"}, "id=?", new String[] {whereint}, null, null, null);
         if (c != null) {
             c.moveToFirst();
             resources_path = c.getString(c.getColumnIndex("resources_path"));
+            folder = c.getString(c.getColumnIndex("folder_name"));
         }
 
         c=db.query("resources", new String[] {"type", "path", "r_id"}, "id=?", new String[] {whereint}, null, null, null);
@@ -87,11 +95,20 @@ public class PagerActivity extends FragmentActivity {
             }
         }
 
+        c=db.query("spinetable", new String[] {"idref"}, "folder_name=?", new String[] {folder}, null, null, null);
+        if (c != null) {
+            int i=0;
+            c.moveToFirst();
+            while (i<c.getCount()) {
+                String idref = c.getString(c.getColumnIndex("idref"));
+                spineList.add(idref);
+                i++;
+                c.moveToNext();
+            }
+        }
 
         db.close();
         //end gathering meta data
-
-
 
 
 
@@ -121,8 +138,15 @@ public class PagerActivity extends FragmentActivity {
 
         public Spanned strToSpanned() throws Exception {
         String htmlstring = concatHtmlString();
-        Spanned myspan = Html.fromHtml(htmlstring);
-        return myspan;
+        Spanned fullspan = Html.fromHtml(htmlstring);
+        return fullspan;
+
+            //split fullspan into span for each page, put into pageArray
+
+
+
+
+
     }
 
     //replace imagegetter with my own class
@@ -141,14 +165,28 @@ public class PagerActivity extends FragmentActivity {
         return myspan;
     }*/
 
+
+    public ArrayList spinePathOrdered() {
+        ArrayList<String> spinePathOrderedList = new ArrayList<>();
+
+        for (int i=0; i<spineList.size();i++) {
+            for (int ii=0; ii<idList.size(); ii++) {
+                if (spineList.get(i).equals(idList.get(ii))) {
+                    spinePathOrderedList.add(pathList.get(ii));
+                }
+            }
+        }
+
+        return spinePathOrderedList;
+    }
+
     public String concatHtmlString() throws Exception {
+        ArrayList<String> spinePathOrderedList;
+        spinePathOrderedList = spinePathOrdered();
 
         String htmlstring="";
-        for (int i=0; i<pathList.size(); i++) {
-            if (typeList.get(i).equals("html")) {
-
-                htmlstring += "\n"+getStringFromFile(pathList.get(i));
-            }
+        for (int i=0; i<spinePathOrderedList.size(); i++) {
+            htmlstring += getStringFromFile(spinePathOrderedList.get(i))+"\n";
         }
         return htmlstring;
     }
@@ -186,21 +224,24 @@ public class PagerActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return new PageFragment();
+
+
+
+            return new PageFragment.newInstance(position);
         }
 
         @Override
         public int getCount() {
-            return NUM_PAGES;
+            //return number of pages
+
+            return pageArray.size();
         }
     }
 
 
-
     //what happens if its static
-    @SuppressLint("ValidFragment")
-    public class PageFragment extends Fragment {
 
+    public class PageFragment extends Fragment {
 
 
         @Override
@@ -210,7 +251,20 @@ public class PagerActivity extends FragmentActivity {
 
             textview = (TextView) rootView.findViewById(R.id.booktextview);
 
+            //add spanned object for the page they are going to
+            //textview.setText(pageArray.get(pos));
+            textview.setText(pageArray.get(getArguments().getInt("index")));
             return rootView;
+        }
+
+
+
+        public static PageFragment newInstance(int position) {
+            PageFragment f = new PageFragment();
+            Bundle args = new Bundle();
+            args.putInt("index", position);
+            f.setArguments(args);
+            return f;
         }
     }
 

@@ -149,12 +149,14 @@ public class HomeActivity extends AppCompatActivity {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS book(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), title nvarchar(200), author nvarchar(200), description nvarchar(400), date nvarchar(50), resources_path nvarchar(400));");
             db.execSQL("CREATE TABLE IF NOT EXISTS resources(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), type nvarchar(50), path nvarchar(200), r_id nvarchar(100));");
+            db.execSQL("CREATE TABLE IF NOT EXISTS spinetable(id INTEGER PRIMARY KEY AUTOINCREMENT, folder_name nvarchar(150), idref nvarchar(100));");
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS book");
             db.execSQL("DROP TABLE IF EXISTS resources");
+            db.execSQL("DROP TABLE IF EXISTS spinetable");
 
             // create fresh books table
             this.onCreate(db);

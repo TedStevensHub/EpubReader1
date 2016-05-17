@@ -42,10 +42,11 @@ import java.util.zip.ZipInputStream;
  */
 public class FileFragment extends AppCompatActivity {
 
-    private ArrayList<String> imgHrefArray;
-    private ArrayList<String> imgIdArray;
-    private ArrayList<String> htmlHrefArray;
-    private ArrayList<String> htmlIdArray;
+    public ArrayList<String> imgHrefArray;
+    public ArrayList<String> imgIdArray;
+    public ArrayList<String> htmlHrefArray;
+    public ArrayList<String> htmlIdArray;
+    public ArrayList<String> spineArray;
     private ListView lv;
 
     //path to folder where all files are
@@ -216,7 +217,9 @@ public class FileFragment extends AppCompatActivity {
                             htmlIdArray.add(parser.getAttributeValue(null, "id"));
                             htmlHrefArray.add(parser.getAttributeValue(null, "href"));
                         }
-                }
+                    } else if (name.equals("itemref")) {
+                        spineArray.add(parser.getAttributeValue(null, "idref"));
+                    }
 
             }
             eventType = parser.next();
@@ -422,6 +425,14 @@ public class FileFragment extends AppCompatActivity {
                 values.put("r_id", htmlIdArray.get(i));
             }
             db.insert("resources", null, values);
+            values.clear();
+
+            for(int i=0; i<spineArray.size(); i++) {
+                values.put("folder_name", fileName);
+                values.put("idref", spineArray.get(i));
+            }
+            db.insert("spinetable", null, values);
+
             db.close();
 
             values.clear();
@@ -429,6 +440,7 @@ public class FileFragment extends AppCompatActivity {
             imgIdArray.clear();
             htmlHrefArray.clear();
             htmlIdArray.clear();
+            spineArray.clear();
 
         } catch (Exception e) {
             e.printStackTrace();

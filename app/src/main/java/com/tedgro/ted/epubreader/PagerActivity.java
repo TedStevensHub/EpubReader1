@@ -173,6 +173,32 @@ public class PagerActivity extends FragmentActivity {
                     finalh = (int)(trueheight-(trueheight*heightpercentage));
                 }
 
+
+                if (widthpercentage==heightpercentage) {
+                    finalw = widthbounds;
+                    finalh = heightbounds;
+                } else if (widthpercentage>heightpercentage) {
+                    if (widthpercentage<=0) {
+                        //no scaling
+                        finalw = truewidth;
+                        finalh = trueheight;
+                    } else {
+                        //do scalling
+                        finalw = (int) (truewidth - (truewidth * widthpercentage));
+                        //use the dominant percentage that is width
+                        finalh = (int) (trueheight - (trueheight * widthpercentage));
+                    }
+                } else if (widthpercentage<heightpercentage) {
+                    if (heightpercentage<=0) {
+                        finalw = truewidth;
+                        finalh = trueheight;
+                    } else {
+                        finalw = (int) (truewidth - (truewidth * heightpercentage));
+                        //use the dominant percentage that is height
+                        finalh = (int) (trueheight - (trueheight * heightpercentage));
+                    }
+                }
+
                 d.setBounds(0, 0, finalw, finalh);
                 return d;
             }

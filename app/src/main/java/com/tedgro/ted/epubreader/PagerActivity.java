@@ -122,6 +122,8 @@ public class PagerActivity extends FragmentActivity {
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         myPager.setAdapter(myPagerAdapter);
 
+
+        //thissssssssssssssssss
         try {
             Spanned myspan = strToSpanned();
             textview.setText(myspan);
@@ -162,15 +164,15 @@ public class PagerActivity extends FragmentActivity {
                     finalw = widthbounds;
                     finalh = heightbounds;
                 } else if (widthpercentage>heightpercentage) {
-                    finalw = (int)(truewidth*widthpercentage);
+                    finalw = (int)(truewidth-(truewidth*widthpercentage));
                     //use the dominant percentage that is width
-                    finalh = (int)(trueheight*widthpercentage);
+                    finalh = (int)(trueheight-(trueheight*widthpercentage));
                 } else if (widthpercentage<heightpercentage) {
-                    finalw = (int)(truewidth*heightpercentage);
+                    finalw = (int)(truewidth-(truewidth*heightpercentage));
                     //use the dominant percentage that is height
-                    finalh = (int)(trueheight*heightpercentage);
+                    finalh = (int)(trueheight-(trueheight*heightpercentage));
                 }
-                
+
                 d.setBounds(0, 0, finalw, finalh);
                 return d;
             }

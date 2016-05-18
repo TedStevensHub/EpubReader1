@@ -40,6 +40,7 @@ import java.util.ArrayList;
 public class PagerActivity extends FragmentActivity {
 
     ArrayList<String> pathList = new ArrayList<>();
+    ArrayList<String> absolutePathList = new ArrayList<>();
     ArrayList<String> idList = new ArrayList<>();
     ArrayList<String> typeList = new ArrayList<>();
     ArrayList<String> spineList = new ArrayList<>();
@@ -49,11 +50,11 @@ public class PagerActivity extends FragmentActivity {
     String resources_path = "";
     String folder = "";
 
-    private TextView textview;
+    public TextView textview;
 
 
-    private ViewPager myPager;
-    private PagerAdapter myPagerAdapter;
+    public ViewPager myPager;
+    public PagerAdapter myPagerAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,7 @@ public class PagerActivity extends FragmentActivity {
                 String r_id = c.getString(c.getColumnIndex("r_id"));
                 typeList.add(type);
                 pathList.add(path);
+                absolutePathList.add(resources_path + "/" + path);
                 idList.add(r_id);
                 i++;
                 c.moveToNext();
@@ -131,39 +133,56 @@ public class PagerActivity extends FragmentActivity {
     }
 
 
-    /*private Spanned editSpannable() {
-
-    }*/
 
 
-        public Spanned strToSpanned() throws Exception {
+
+    //return spannable of images and styled text
+    public Spanned strToSpanned() throws Exception {
         String htmlstring = concatHtmlString();
-        Spanned fullspan = Html.fromHtml(htmlstring);
+        Spanned fullspan = Html.fromHtml(htmlstring, new Html.ImageGetter() {
+            @Override public Drawable getDrawable(String source) {
+                String path = resources_path + "/" + source;
+                Drawable d = Drawable.createFromPath(path);
+
+                int finalw = 0;
+                int finalh = 0;
+                float widthpercentage = 0;
+                float heightpercentage = 0;
+                int widthbounds = myPager.getMeasuredWidth();
+                int heightbounds = myPager.getMeasuredHeight();
+                int truewidth = d.getIntrinsicWidth();
+                int trueheight = d.getIntrinsicHeight();
+
+                //scaling
+
+                widthpercentage = (truewidth-widthbounds)/truewidth;
+                heightpercentage = (trueheight-heightbounds)/trueheight;
+
+                if (widthpercentage==heightpercentage) {
+                    finalw = widthbounds;
+                    finalh = heightbounds;
+                } else if (widthpercentage>heightpercentage) {
+                    finalw = (int)(truewidth*widthpercentage);
+                    //use the dominant percentage that is width
+                    finalh = (int)(trueheight*widthpercentage);
+                } else if (widthpercentage<heightpercentage) {
+                    finalw = (int)(truewidth*heightpercentage);
+                    //use the dominant percentage that is height
+                    finalh = (int)(trueheight*heightpercentage);
+                }
+                
+                d.setBounds(0, 0, finalw, finalh);
+                return d;
+            }
+        }, null);
+
+
+
         return fullspan;
-
-            //split fullspan into span for each page, put into pageArray
-
-
-
 
 
     }
 
-    //replace imagegetter with my own class
-/*    public Spanned strToSpanned(String string) throws Exception {
-        String htmlstring = concatHtmlString();
-        Spanned myspan = Html.fromHtml(htmlstring, new Html.ImageGetter(){
-            @Override public Drawable getDrawable(String source) {
-                Drawable drawFromPath;
-                int path = x;
-                drawFromPath = (Drawable) PagerActivity.this.getResources().getDrawable(path);
-                //set bounds
-                drawFromPath.setBounds(0, 0, textview.getWidth(), textview.getHeight());
-                return drawFromPath;
-            }
-        }, null);
-        return myspan;
-    }*/
 
 
     public ArrayList spinePathOrdered() {

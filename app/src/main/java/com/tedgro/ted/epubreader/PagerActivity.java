@@ -39,14 +39,14 @@ import java.util.ArrayList;
  */
 public class PagerActivity extends FragmentActivity {
 
-    ArrayList<String> pathList = new ArrayList<>();
-    ArrayList<String> absolutePathList = new ArrayList<>();
-    ArrayList<String> idList = new ArrayList<>();
-    ArrayList<String> typeList = new ArrayList<>();
-    ArrayList<String> spineList = new ArrayList<>();
+    public ArrayList<String> pathList = new ArrayList<>();
+    public ArrayList<String> absolutePathList = new ArrayList<>();
+    public ArrayList<String> idList = new ArrayList<>();
+    public ArrayList<String> typeList = new ArrayList<>();
+    public ArrayList<String> spineList = new ArrayList<>();
     //add spine data
 
-    ArrayList<Spanned> pageArray = new ArrayList<>();
+    public static ArrayList<Spanned> pageArray = new ArrayList<>();
     String resources_path = "";
     String folder = "";
 
@@ -274,7 +274,7 @@ public class PagerActivity extends FragmentActivity {
 
 
 
-            return new PageFragment.newInstance(position);
+            return PageFragment.newInstance(position);
         }
 
         @Override
@@ -288,7 +288,7 @@ public class PagerActivity extends FragmentActivity {
 
     //what happens if its static
 
-    public class PageFragment extends Fragment {
+    public static class PageFragment extends Fragment {
 
 
         @Override
@@ -296,11 +296,11 @@ public class PagerActivity extends FragmentActivity {
             ViewGroup rootView = (ViewGroup) inflater.inflate(
                     R.layout.scrollview_layout, container, false);
 
-            textview = (TextView) rootView.findViewById(R.id.booktextview);
+            TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
 
             //add spanned object for the page they are going to
             //textview.setText(pageArray.get(pos));
-            textview.setText(pageArray.get(getArguments().getInt("index")));
+            fragmentTextView.setText(pageArray.get(getArguments().getInt("index")));
             return rootView;
         }
 
@@ -314,7 +314,6 @@ public class PagerActivity extends FragmentActivity {
             return f;
         }
     }
-
 
 
 

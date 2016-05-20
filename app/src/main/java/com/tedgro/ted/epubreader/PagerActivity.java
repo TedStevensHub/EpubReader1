@@ -39,8 +39,10 @@ import java.util.ArrayList;
 /**
  * Created by Tedjo on 5/4/2016.
  */
+
 public class PagerActivity extends FragmentActivity {
 
+    static final int padding = 40;
     public static ArrayList<String> pathList = new ArrayList<>();
     public ArrayList<String> absolutePathList = new ArrayList<>();
     public static ArrayList<String> idList = new ArrayList<>();
@@ -127,8 +129,9 @@ public class PagerActivity extends FragmentActivity {
 
         try {
             Spanned myspan = strToSpanned();
-            int boundsHeight = myPager.getHeight();
-            int fitInt = 0;
+            int boundsHeight = myPager.getHeight() - padding;
+            int newPageLineBottom = 0;
+            int lastPageLineBottom = 0;
             TextView fragmentTextView = (TextView) myPager.findViewById(R.id.booktextview);
             fragmentTextView.setVisibility(View.GONE);
             fragmentTextView.setText(myspan);
@@ -136,21 +139,35 @@ public class PagerActivity extends FragmentActivity {
             int startLine = 1;
             Spannable addpage = null;
 
+
+
+
             //does getlinebottom return heigh or total distance from top of textview
-        for (int i = 1;i<=totalNumLines ; i++) {
-            fitInt += fragmentTextView.getLayout().getLineBottom(i);
-            if (fitInt > boundsHeight) {
-                i=-1;
-                int start = fragmentTextView.getLayout().getLineStart(startLine);
-                int end = fragmentTextView.getLayout().getLineEnd(i);
-                TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
-                pageArray.add(addpage);
-                fitInt=0;
-                startLine=i+1;
-                addpage=null;
+            for (int i = 1;i<=totalNumLines ; i++) {
+                newPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
+
+                if (i==totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
+                    int start = fragmentTextView.getLayout().getLineStart(startLine);
+                    int end = fragmentTextView.getLayout().getLineEnd(i);
+                    TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                    pageArray.add(addpage);
+                    addpage=null;
+                }
+
+                if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
+                    i=i-1;
+                    lastPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
+                    int start = fragmentTextView.getLayout().getLineStart(startLine);
+                    int end = fragmentTextView.getLayout().getLineEnd(i);
+                    startLine = i+1;
+                    TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                    pageArray.add(addpage);
+                    addpage=null;
+                    i+=1;
+                }
+
             }
 
-        }
 
 
         } catch (Exception e) {
@@ -175,12 +192,13 @@ public class PagerActivity extends FragmentActivity {
                 String path = resources_path + "/" + source;
                 Drawable d = Drawable.createFromPath(path);
 
+
                 int finalw = 0;
                 int finalh = 0;
                 float widthpercentage = 0;
                 float heightpercentage = 0;
-                int widthbounds = myPager.getMeasuredWidth();
-                int heightbounds = myPager.getMeasuredHeight();
+                int widthbounds = myPager.getMeasuredWidth() - padding;
+                int heightbounds = myPager.getMeasuredHeight() - padding;
                 int truewidth = d.getIntrinsicWidth();
                 int trueheight = d.getIntrinsicHeight();
 

@@ -17,7 +17,9 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,21 +41,21 @@ import java.util.ArrayList;
  */
 public class PagerActivity extends FragmentActivity {
 
-    public ArrayList<String> pathList = new ArrayList<>();
+    public static ArrayList<String> pathList = new ArrayList<>();
     public ArrayList<String> absolutePathList = new ArrayList<>();
-    public ArrayList<String> idList = new ArrayList<>();
+    public static ArrayList<String> idList = new ArrayList<>();
     public ArrayList<String> typeList = new ArrayList<>();
-    public ArrayList<String> spineList = new ArrayList<>();
+    public static ArrayList<String> spineList = new ArrayList<>();
     //add spine data
 
     public static ArrayList<Spanned> pageArray = new ArrayList<>();
-    String resources_path = "";
+    static String resources_path = "";
     String folder = "";
 
-    public TextView textview;
+    public TextView fragmentTextView;
 
 
-    public ViewPager myPager;
+    public static ViewPager myPager;
     public PagerAdapter myPagerAdapter;
 
     @Override
@@ -123,13 +125,40 @@ public class PagerActivity extends FragmentActivity {
         myPager.setAdapter(myPagerAdapter);
 
 
-        //thissssssssssssssssss
         try {
             Spanned myspan = strToSpanned();
-            textview.setText(myspan);
+            int boundsHeight = myPager.getHeight();
+            int fitInt = 0;
+            TextView fragmentTextView = (TextView) myPager.findViewById(R.id.booktextview);
+            fragmentTextView.setVisibility(View.GONE);
+            fragmentTextView.setText(myspan);
+            int totalNumLines = fragmentTextView.getMaxLines();
+            int startLine = 1;
+            Spannable addpage = null;
+
+            //does getlinebottom return heigh or total distance from top of textview
+        for (int i = 1;i<=totalNumLines ; i++) {
+            fitInt += fragmentTextView.getLayout().getLineBottom(i);
+            if (fitInt > boundsHeight) {
+                i=-1;
+                int start = fragmentTextView.getLayout().getLineStart(startLine);
+                int end = fragmentTextView.getLayout().getLineEnd(i);
+                TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                pageArray.add(addpage);
+                fitInt=0;
+                startLine=i+1;
+                addpage=null;
+            }
+
+        }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        fragmentTextView.setVisibility(View.VISIBLE);
+        PageFragment.newInstance(1);
 
 
     }
@@ -139,7 +168,7 @@ public class PagerActivity extends FragmentActivity {
 
 
     //return spannable of images and styled text
-    public Spanned strToSpanned() throws Exception {
+    public static Spanned strToSpanned() throws Exception {
         String htmlstring = concatHtmlString();
         Spanned fullspan = Html.fromHtml(htmlstring, new Html.ImageGetter() {
             @Override public Drawable getDrawable(String source) {
@@ -160,23 +189,12 @@ public class PagerActivity extends FragmentActivity {
                 widthpercentage = (truewidth-widthbounds)/truewidth;
                 heightpercentage = (trueheight-heightbounds)/trueheight;
 
-                if (widthpercentage==heightpercentage) {
+                if (widthpercentage==heightpercentage && widthpercentage >= 0) {
                     finalw = widthbounds;
                     finalh = heightbounds;
-                } else if (widthpercentage>heightpercentage) {
-                    finalw = (int)(truewidth-(truewidth*widthpercentage));
-                    //use the dominant percentage that is width
-                    finalh = (int)(trueheight-(trueheight*widthpercentage));
-                } else if (widthpercentage<heightpercentage) {
-                    finalw = (int)(truewidth-(truewidth*heightpercentage));
-                    //use the dominant percentage that is height
-                    finalh = (int)(trueheight-(trueheight*heightpercentage));
-                }
-
-
-                if (widthpercentage==heightpercentage) {
-                    finalw = widthbounds;
-                    finalh = heightbounds;
+                } else if (widthpercentage==heightpercentage && widthpercentage < 0) {
+                    finalw = truewidth;
+                    finalh = trueheight;
                 } else if (widthpercentage>heightpercentage) {
                     if (widthpercentage<=0) {
                         //no scaling
@@ -213,7 +231,7 @@ public class PagerActivity extends FragmentActivity {
 
 
 
-    public ArrayList spinePathOrdered() {
+    public static ArrayList spinePathOrdered() {
         ArrayList<String> spinePathOrderedList = new ArrayList<>();
 
         for (int i=0; i<spineList.size();i++) {
@@ -227,7 +245,7 @@ public class PagerActivity extends FragmentActivity {
         return spinePathOrderedList;
     }
 
-    public String concatHtmlString() throws Exception {
+    public static String concatHtmlString() throws Exception {
         ArrayList<String> spinePathOrderedList;
         spinePathOrderedList = spinePathOrdered();
 
@@ -299,8 +317,11 @@ public class PagerActivity extends FragmentActivity {
             TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
 
             //add spanned object for the page they are going to
-            //textview.setText(pageArray.get(pos));
             fragmentTextView.setText(pageArray.get(getArguments().getInt("index")));
+
+
+
+
             return rootView;
         }
 

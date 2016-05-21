@@ -42,23 +42,23 @@ import java.util.ArrayList;
 
 public class PagerActivity extends FragmentActivity {
 
-    static final int padding = 40;
+    public static final int padding = 40;
     public static ArrayList<String> pathList = new ArrayList<>();
-    public ArrayList<String> absolutePathList = new ArrayList<>();
+    public static ArrayList<String> absolutePathList = new ArrayList<>();
     public static ArrayList<String> idList = new ArrayList<>();
-    public ArrayList<String> typeList = new ArrayList<>();
+    public static ArrayList<String> typeList = new ArrayList<>();
     public static ArrayList<String> spineList = new ArrayList<>();
     //add spine data
 
     public static ArrayList<Spanned> pageArray = new ArrayList<>();
-    static String resources_path = "";
-    String folder = "";
+    public static String resources_path = "";
+    public static String folder = "";
 
     public TextView fragmentTextView;
 
 
     public static ViewPager myPager;
-    public PagerAdapter myPagerAdapter;
+    public static PagerAdapter myPagerAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -283,7 +283,7 @@ public class PagerActivity extends FragmentActivity {
         StringBuilder sb = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
+            sb.append(line + "\n");
         }
         reader.close();
         return sb.toString();
@@ -359,11 +359,10 @@ public class PagerActivity extends FragmentActivity {
     @Override
     public void onBackPressed() {
         if (myPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
+            // finishes the activity and calls backstack
             super.onBackPressed();
         } else {
-            // Otherwise, select the previous step.
+            // Otherwise, select the previous page
             myPager.setCurrentItem(myPager.getCurrentItem() - 1);
         }
     }

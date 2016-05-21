@@ -71,21 +71,6 @@ public class HomeActivity extends AppCompatActivity {
         db.close();
 
 
-/*        //filefinder test
-        if (flist.size()>0) {
-            String path = getFilesDir().getAbsolutePath() + "/" + flist.get(0);
-            Log.d("filefinder", "#-2");
-            ArrayList<String> filePathList;
-            PagerActivity.fileFinder ff = new PagerActivity.fileFinder();
-            Log.d("filefinder", "#-1");
-            filePathList = ff.getFiles(new String[] {"opf"}, path);
-            Log.d("filefinder", "#0");
-            for (int i = 0; i < filePathList.size(); i++) {
-                Log.d("filefinder", "#00");
-                Log.d("filefinder", filePathList.get(i));
-            }
-        }*/
-
         //instantiate custom adapter
         MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
 

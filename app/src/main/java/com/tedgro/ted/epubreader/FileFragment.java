@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -42,11 +43,7 @@ import java.util.zip.ZipInputStream;
  */
 public class FileFragment extends AppCompatActivity {
 
-    public ArrayList<String> imgHrefArray;
-    public ArrayList<String> imgIdArray;
-    public ArrayList<String> htmlHrefArray;
-    public ArrayList<String> htmlIdArray;
-    public ArrayList<String> spineArray;
+
     private ListView lv;
 
     //path to folder where all files are
@@ -160,10 +157,14 @@ public class FileFragment extends AppCompatActivity {
                 parser.setInput(in_s, null);
 
                 //***do i have to set book=parseXML in order to receive the return object
+                Log.d("debugger", "#1.1");
 
-                book=parseXML(parser);
+                parseXML px = new parseXML();
+                book=px.parseXML(parser);
+                Log.d("debugger", "#2.2");
                 File opfpath = new File(opfstr);
                 book.setPath(opfpath.getParent());
+                Log.d("debugger", "2.3" + book.getPath());
 
             } catch (XmlPullParserException e) {
                 e.printStackTrace();
@@ -184,50 +185,94 @@ public class FileFragment extends AppCompatActivity {
 
 
     //meta data parser. can add other data logic
-    private Book parseXML(XmlPullParser parser) throws XmlPullParserException,IOException {
+    public class parseXML {
+
+        ArrayList<String> imgHrefArray = new ArrayList<>();
+        ArrayList<String> imgIdArray = new ArrayList<>();
+        ArrayList<String> htmlHrefArray = new ArrayList<>();
+        ArrayList<String> htmlIdArray = new ArrayList<>();
+        ArrayList<String> spineArray = new ArrayList<>();
+
+        public Book parseXML (XmlPullParser parser)throws XmlPullParserException, IOException {
+
 
         int eventType = parser.getEventType();
         Book book = new Book();
         Log.d("printlogger", "#1 in parseXML()");
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            String name;
-            switch (eventType) {
-                case XmlPullParser.START_DOCUMENT:
-                    Log.d("printlogger", "#2.1 in parseXML()");
-                    break;
-                case XmlPullParser.START_TAG:
-                    name = parser.getName();
-                    //&& not already written to
-                    if (name.equals("title") && book.getTitle().equals("")) {
-                        Log.d("printlogger", "#3 in parseXML()");
-                        book.setTitle(parser.nextText());
-                        Log.d("printlogger", "#4 in parseXML() " + book.getTitle());
-                    } else if (name.equals("creator") && book.getAuthor().equals("")) {
-                        book.setAuthor(parser.nextText());
-                    } else if (name.equals("description") && book.getDescription().equals("")) {
-                        book.setDescription(parser.nextText());
-                    } else if (name.equals("date") && book.getPubDate().equals("")) {
-                        book.setPubDate(parser.nextText());
-                    } else if (name.equals("item")) {
-                        String mt = parser.getAttributeValue(null, "media-type");
-                        if(mt.equals("image/jpeg")||mt.equals("image/png")||mt.equals("image/gif")) {
-                            imgIdArray.add(parser.getAttributeValue(null, "id"));
-                            imgHrefArray.add(parser.getAttributeValue(null, "href"));
-                        } else if (mt.equals("application/xhtml+xml")) {
-                            htmlIdArray.add(parser.getAttributeValue(null, "id"));
-                            htmlHrefArray.add(parser.getAttributeValue(null, "href"));
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                String name;
+                switch (eventType) {
+                    case XmlPullParser.START_DOCUMENT:
+                        Log.d("printlogger", "#2.1 in parseXML()");
+                        break;
+                    case XmlPullParser.START_TAG:
+                        name = parser.getName();
+                        //&& not already written to
+                        if (name.equals("title") && book.getTitle().equals("")) {
+                            Log.d("printlogger", "#3 in parseXML()");
+                            book.setTitle(parser.nextText());
+                            Log.d("printlogger", "#4 in parseXML() " + book.getTitle());
+                        } else if (name.equals("creator") && book.getAuthor().equals("")) {
+                            book.setAuthor(parser.nextText());
+                        } else if (name.equals("description") && book.getDescription().equals("")) {
+                            book.setDescription(parser.nextText());
+                        } else if (name.equals("date") && book.getPubDate().equals("")) {
+                            book.setPubDate(parser.nextText());
+                        } else if (name.equals("item")) {
+                            Log.d("debugger", "item");
+                            String mt = parser.getAttributeValue(null, "media-type");
+                            if (mt.equals("image/jpeg") || mt.equals("image/png") || mt.equals("image/gif")) {
+                                imgIdArray.add(parser.getAttributeValue(null, "id"));
+                                imgHrefArray.add(parser.getAttributeValue(null, "href"));
+                                Log.d("debugger", imgIdArray.get(0));
+                                Log.d("debugger", "item/img");
+                            } else if (mt.equals("application/xhtml+xml")) {
+                                htmlIdArray.add(parser.getAttributeValue(null, "id"));
+                                htmlHrefArray.add(parser.getAttributeValue(null, "href"));
+                                Log.d("debugger", "item/html");
+                            }
+                        } else if (name.equals("itemref")) {
+                            Log.d("debugger", "itemref");
+                            spineArray.add(parser.getAttributeValue(null, "idref"));
                         }
-                    } else if (name.equals("itemref")) {
-                        spineArray.add(parser.getAttributeValue(null, "idref"));
-                    }
 
+                }
+                eventType = parser.next();
             }
-            eventType = parser.next();
+
+
+
+
+            return book;
         }
 
-        return book;
-    }
 
+/*        public ArrayList<String> getImgIdArray () {
+            return imgIdArray;
+        }
+        public ArrayList<String> getImgHrefArray () {
+            return imgHrefArray;
+        }
+        public ArrayList<String> getHtmlIdArray () {
+            return htmlIdArray;
+        }
+        public ArrayList<String> getHtmlHrefArray () {
+            return htmlHrefArray;
+        }
+        public ArrayList<String> getSpineArray () {
+            return spineArray;
+        }*/
+
+
+        public void setClearArrays () {
+            imgIdArray.clear();
+            imgHrefArray.clear();
+            htmlIdArray.clear();
+            htmlHrefArray.clear();
+            spineArray.clear();
+        }
+
+    }
 
 
 
@@ -387,7 +432,10 @@ public class FileFragment extends AppCompatActivity {
     public void addBook(String fileName) {
 
 
+
         try {
+            parseXML px = new parseXML();
+
             myParser mp = new myParser(fileName);
             //unsure if fileName passes in object or method
             Book book = mp.getMetaData();
@@ -412,35 +460,36 @@ public class FileFragment extends AppCompatActivity {
             db.insert("book", null, values);
             values.clear();
 
-            for(int i=0; i<imgIdArray.size(); i++) {
+            for(int i=0; i<px.imgIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "img");
-                values.put("path", imgHrefArray.get(i));
-                values.put("r_id", imgIdArray.get(i));
+                values.put("path", px.imgHrefArray.get(i));
+                values.put("r_id", px.imgIdArray.get(i));
+                Log.d("debugger", px.imgIdArray.get(i));
             }
-            for(int i=0; i<htmlIdArray.size(); i++) {
+            for(int i=0; i<px.htmlIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "html");
-                values.put("path", htmlHrefArray.get(i));
-                values.put("r_id", htmlIdArray.get(i));
+                values.put("path", px.htmlHrefArray.get(i));
+                values.put("r_id", px.htmlIdArray.get(i));
+                Log.d("debugger", px.htmlIdArray.get(i));
             }
             db.insert("resources", null, values);
             values.clear();
 
-            for(int i=0; i<spineArray.size(); i++) {
+            for(int i=0; i<px.spineArray.size(); i++) {
                 values.put("folder_name", fileName);
-                values.put("idref", spineArray.get(i));
+                values.put("idref", px.spineArray.get(i));
+                Log.d("debugger", px.spineArray.get(i));
             }
             db.insert("spinetable", null, values);
 
             db.close();
 
+
+
             values.clear();
-            imgHrefArray.clear();
-            imgIdArray.clear();
-            htmlHrefArray.clear();
-            htmlIdArray.clear();
-            spineArray.clear();
+            px.setClearArrays();
 
         } catch (Exception e) {
             e.printStackTrace();

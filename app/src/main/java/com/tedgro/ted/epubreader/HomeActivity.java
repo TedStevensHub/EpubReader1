@@ -79,20 +79,9 @@ public class HomeActivity extends AppCompatActivity {
         lView.setAdapter(adapter);
 
 
+        
 
-        //onclick for each book
-        lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> adapter, View v, int position,
-                                    long arg3)
-            {
-                Intent i = new Intent(getApplicationContext(), PagerActivity.class);
-                i.putExtra("bookpos", position);
-                startActivity(i);
 
-            }
-        });
 
     }
 
@@ -195,7 +184,20 @@ public class HomeActivity extends AppCompatActivity {
             TextView authorListText = (TextView)view.findViewById(R.id.list_author_string);
             listItemText.setText(bookList.get(position));
             authorListText.setText(authorList.get(position));
+            listItemText.bringToFront();
+//            listItemText.setTag(position);
 
+/*            listItemText.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Log.d("intentlog", "#1 Position: " + Integer.toString(position));
+                    Intent i = new Intent(getApplicationContext(), PagerActivity.class);
+                    i.putExtra("bookpos", position);
+                    startActivity(i);
+                    Log.d("intentlog", "2");
+                }
+            });*/
 
             //make buttons
             Button info_button = (Button)view.findViewById(R.id.bookInfo_btn);

@@ -46,7 +46,7 @@ public class PagerActivity extends FragmentActivity {
     public ViewPager myPager;
     public TextView fragmentTextView;
     public static PagerAdapter myPagerAdapter;
-
+    public View myPrep;
 
 
     @Override
@@ -123,6 +123,7 @@ public class PagerActivity extends FragmentActivity {
         // Instantiate a ViewPager and a PagerAdapter.
         myPager = (ViewPager) findViewById(R.id.pager);
         Log.d("pagerview", "#3");
+
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         Log.d("pagerview", "#4");
         myPager.setAdapter(myPagerAdapter);
@@ -130,13 +131,13 @@ public class PagerActivity extends FragmentActivity {
 
 
         initiateBook ib = new initiateBook();
-        ArrayList<Spanned> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, myPager);
+        ArrayList<Spannable> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, myPager);
         Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
 
 
         fragmentTextView.setVisibility(View.VISIBLE);
         PageFragment.newInstance(1);
-
+        Log.d("pagerview", "#17");
 
     }
 
@@ -145,22 +146,30 @@ public class PagerActivity extends FragmentActivity {
 
     public static class initiateBook {
         //should go into class
-        public static ArrayList<Spanned> pageArray = new ArrayList<>();
+        public static ArrayList<Spannable> pageArray = new ArrayList<>();
 
-        public ArrayList<Spanned> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, ViewPager myPager) {
+        public ArrayList<Spannable> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, ViewPager myPager) {
             try {
                 Log.d("pagerview", "#6");
                 strToSpanned str = new strToSpanned();
-
-                Log.d("pagerview", "#13");
                 Spanned myspan = str.strToSpanned(spineList, idList, pathList, resources_path, myPager);
+                Log.d("pagerview", "#13");
                 int boundsHeight = myPager.getHeight() - padding;
+                Log.d("pagerview", "#13.1");
                 int newPageLineBottom = 0;
                 int lastPageLineBottom = 0;
+                //myPager is wrong, that refrences a layout without a textview
+                /*
+                NEED A PREPPING FRAGMENT TO DUMP SPANNED INTO A TEXTVIEW
+                */
                 TextView fragmentTextView = (TextView) myPager.findViewById(R.id.booktextview);
+                Log.d("pagerview", "#13.2");
                 fragmentTextView.setVisibility(View.GONE);
+                Log.d("pagerview", "#13.3");
                 fragmentTextView.setText(myspan);
+                Log.d("pagerview", "#13.4");
                 int totalNumLines = fragmentTextView.getMaxLines();
+                Log.d("pagerview", "#13.5");
                 int startLine = 1;
                 Spannable addpage = null;
                 Log.d("pagerview", "#14");
@@ -280,7 +289,7 @@ public class PagerActivity extends FragmentActivity {
             ArrayList<String> spinePathOrderedList;
             spinePathOrdered spo = new spinePathOrdered();
             spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList);
-            Log.d("pagerview", "#9");
+            Log.d("pagerview", "#8.5");
             String htmlstring = "";
             for (int i = 0; i < spinePathOrderedList.size(); i++) {
                 htmlstring += getStringFromFile(spinePathOrderedList.get(i)) + "\n";
@@ -344,14 +353,12 @@ public class PagerActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-
             return PageFragment.newInstance(position);
         }
 
         @Override
         public int getCount() {
             //return number of pages
-
             return initiateBook.pageArray.size();
         }
     }

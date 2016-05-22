@@ -175,9 +175,7 @@ public class FileFragment extends AppCompatActivity {
         }
     }
 
-    public void writeDirectory() {
 
-    }
 
 
 
@@ -185,7 +183,7 @@ public class FileFragment extends AppCompatActivity {
 
 
     //meta data parser. can add other data logic
-    public class parseXML {
+    public static class parseXML {
 
 
         /*
@@ -193,13 +191,13 @@ public class FileFragment extends AppCompatActivity {
         * Somehow return all these
         *
         * */
-        public ArrayList<String> imgHrefArray = new ArrayList<>();
-        public ArrayList<String> imgIdArray = new ArrayList<>();
-        public ArrayList<String> htmlHrefArray = new ArrayList<>();
-        public ArrayList<String> htmlIdArray = new ArrayList<>();
-        public ArrayList<String> spineArray = new ArrayList<>();
+        public static ArrayList<String> imgHrefArray = new ArrayList<>();
+        public static ArrayList<String> imgIdArray = new ArrayList<>();
+        public static ArrayList<String> htmlHrefArray = new ArrayList<>();
+        public static ArrayList<String> htmlIdArray = new ArrayList<>();
+        public static ArrayList<String> spineArray = new ArrayList<>();
 
-        public Book parseXML (XmlPullParser parser)throws XmlPullParserException, IOException {
+        public static Book parseXML (XmlPullParser parser)throws XmlPullParserException, IOException {
 
 
         int eventType = parser.getEventType();
@@ -228,17 +226,17 @@ public class FileFragment extends AppCompatActivity {
                             Log.d("debugger", "item");
                             String mt = parser.getAttributeValue(null, "media-type");
                             if (mt.equals("image/jpeg") || mt.equals("image/png") || mt.equals("image/gif")) {
-                                this.imgIdArray.add(parser.getAttributeValue(null, "id"));
-                                this.imgHrefArray.add(parser.getAttributeValue(null, "href"));
+                                imgIdArray.add(parser.getAttributeValue(null, "id"));
+                                imgHrefArray.add(parser.getAttributeValue(null, "href"));
                                 Log.d("debugger", "item/img");
                             } else if (mt.equals("application/xhtml+xml")) {
-                                this.htmlIdArray.add(parser.getAttributeValue(null, "id"));
-                                this.htmlHrefArray.add(parser.getAttributeValue(null, "href"));
+                                htmlIdArray.add(parser.getAttributeValue(null, "id"));
+                                htmlHrefArray.add(parser.getAttributeValue(null, "href"));
                                 Log.d("debugger", "item/html");
                             }
                         } else if (name.equals("itemref")) {
                             Log.d("debugger", "itemref");
-                            this.spineArray.add(parser.getAttributeValue(null, "idref"));
+                            spineArray.add(parser.getAttributeValue(null, "idref"));
                         }
 
                 }
@@ -439,12 +437,6 @@ public class FileFragment extends AppCompatActivity {
 
 
         try {
-            parseXML px = new parseXML();
-            ArrayList<String> imgHrefArray = px.getImgHrefArray();
-            ArrayList<String> imgIdArray = px.getImgIdArray();
-            ArrayList<String> htmlIdArray = px.getHtmlIdArray();
-            ArrayList<String> htmlHrefArray = px.getHtmlHrefArray();
-            ArrayList<String> spineArray = px.getSpineArray();
 
             myParser mp = new myParser(fileName);
             //unsure if fileName passes in object or method
@@ -470,35 +462,41 @@ public class FileFragment extends AppCompatActivity {
             db.insert("book", null, values);
             values.clear();
 
-            for(int i=0; i<imgIdArray.size(); i++) {
+            for(int i=0; i<parseXML.imgIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "img");
-                values.put("path", imgHrefArray.get(i));
-                values.put("r_id", imgIdArray.get(i));
-                Log.d("debugger", imgIdArray.get(i));
+                values.put("path", parseXML.imgHrefArray.get(i));
+                values.put("r_id", parseXML.imgIdArray.get(i));
+                Log.d("debugger", parseXML.imgIdArray.get(i));
+                db.insert("resources", null, values);
+                values.clear();
             }
-            for(int i=0; i<htmlIdArray.size(); i++) {
+            for(int i=0; i<parseXML.htmlIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "html");
-                values.put("path", htmlHrefArray.get(i));
-                values.put("r_id", htmlIdArray.get(i));
-                Log.d("debugger", htmlIdArray.get(i));
+                values.put("path", parseXML.htmlHrefArray.get(i));
+                values.put("r_id", parseXML.htmlIdArray.get(i));
+                Log.d("debugger", parseXML.htmlIdArray.get(i));
+                db.insert("resources", null, values);
+                values.clear();
             }
-            db.insert("resources", null, values);
-            values.clear();
 
-            for(int i=0; i<spineArray.size(); i++) {
+
+            for(int i=0; i<parseXML.spineArray.size(); i++) {
                 values.put("folder_name", fileName);
-                values.put("idref", spineArray.get(i));
-                Log.d("debugger", spineArray.get(i));
+                values.put("idref", parseXML.spineArray.get(i));
+                Log.d("debugger", "spine "+parseXML.spineArray.get(i));
+                db.insert("spinetable", null, values);
+                values.clear();
             }
-            db.insert("spinetable", null, values);
+
 
             db.close();
 
 
 
             values.clear();
+            parseXML px = new parseXML();
             px.setClearArrays();
 
         } catch (Exception e) {
@@ -526,7 +524,7 @@ public class FileFragment extends AppCompatActivity {
 
 
     //Book object class
-    public class Book {
+    public static class Book {
         int _id = 0;
         String _foldername = "";
         String _title = "";

@@ -57,7 +57,7 @@ public class PagerActivity extends FragmentActivity {
 
         String resources_path = "";
         ArrayList<String> pathList = new ArrayList<>();
-        ArrayList<String> absolutePathList = new ArrayList<>();
+
         ArrayList<String> idList = new ArrayList<>();
         ArrayList<String> typeList = new ArrayList<>();
         ArrayList<String> spineList = new ArrayList<>();
@@ -80,36 +80,29 @@ public class PagerActivity extends FragmentActivity {
             c.moveToFirst();
             resources_path = c.getString(c.getColumnIndex("resources_path"));
             folder = c.getString(c.getColumnIndex("folder_name"));
+            Log.d("pagerview", "folder name: "+folder);
         }
 
-        c=db.query("resources", new String[] {"type", "path", "r_id"}, "id=?", new String[] {whereint}, null, null, null);
-        if (c != null) {
-            int i=0;
-            c.moveToFirst();
-            while (i<c.getCount()) {
+        c=db.query("resources", new String[] {"type", "path", "r_id"}, "folder_name=?", new String[] {folder}, null, null, null);
+            while (c.moveToNext()) {
                 String type = c.getString(c.getColumnIndex("type"));
                 String path = c.getString(c.getColumnIndex("path"));
                 String r_id = c.getString(c.getColumnIndex("r_id"));
                 typeList.add(type);
                 pathList.add(path);
-                absolutePathList.add(resources_path + "/" + path);
                 idList.add(r_id);
-                i++;
-                c.moveToNext();
+                Log.d("pagerview", "resources: "+r_id);
             }
-        }
+
 
         c=db.query("spinetable", new String[] {"idref"}, "folder_name=?", new String[] {folder}, null, null, null);
-        if (c != null) {
-            int i=0;
-            c.moveToFirst();
-            while (i<c.getCount()) {
+        while (c.moveToNext()) {
                 String idref = c.getString(c.getColumnIndex("idref"));
                 spineList.add(idref);
-                i++;
-                c.moveToNext();
+                Log.d("pagerview", "idref: "+idref);
+
             }
-        }
+
 
         db.close();
         //end gathering meta data
@@ -133,7 +126,7 @@ public class PagerActivity extends FragmentActivity {
         ArrayList<Spannable> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, myPager);
         Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
 
-        
+
         PageFragment.newInstance(1);
         Log.d("pagerview", "#17");
 
@@ -162,7 +155,7 @@ public class PagerActivity extends FragmentActivity {
                 */
                 TextView prepTextView = (TextView) myPager.findViewById(R.id.prepTextView);
                 Log.d("pagerview", "#13.2");
-                prepTextView.setVisibility(View.GONE);
+//                prepTextView.setVisibility(View.GONE);
                 Log.d("pagerview", "#13.3");
                 prepTextView.setText(myspan);
                 Log.d("pagerview", "#13.4");
@@ -197,6 +190,7 @@ public class PagerActivity extends FragmentActivity {
                     }
 
                 }
+                prepTextView.setText("");
                 Log.d("pagerview", "#15");
 
             } catch (Exception e) {
@@ -217,7 +211,7 @@ public class PagerActivity extends FragmentActivity {
 
                 Log.d("pagerview", "#7");
                 concatHtmlString concat = new concatHtmlString();
-                String htmlstring = concat.concatHtmlString(spineList, idList, pathList);
+                String htmlstring = concat.concatHtmlString(spineList, idList, pathList, resources_path);
                 Log.d("pagerview", "#11");
                 Spanned fullspan = Html.fromHtml(htmlstring, new Html.ImageGetter() {
                 @Override
@@ -282,15 +276,16 @@ public class PagerActivity extends FragmentActivity {
 
     public static class concatHtmlString {
 
-        public String concatHtmlString(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList) throws Exception {
+        public String concatHtmlString(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path) throws Exception {
             Log.d("pagerview", "#8");
             ArrayList<String> spinePathOrderedList;
             spinePathOrdered spo = new spinePathOrdered();
-            spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList);
-            Log.d("pagerview", "#8.5");
+            spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList, resources_path);
+            Log.d("pagerview", "#9");
             String htmlstring = "";
             for (int i = 0; i < spinePathOrderedList.size(); i++) {
-                htmlstring += getStringFromFile(spinePathOrderedList.get(i)) + "\n";
+                Log.d("pagerview", spinePathOrderedList.get(i));
+                htmlstring += getStringFromFile(spinePathOrderedList.get(i));
             }
             return htmlstring;
         }
@@ -298,17 +293,18 @@ public class PagerActivity extends FragmentActivity {
 
     public static class spinePathOrdered {
 
-        public ArrayList spinePathOrdered(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList) {
+        public static ArrayList<String> spinePathOrdered(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path) {
 
             ArrayList<String> spinePathOrderedList = new ArrayList<>();
-            Log.d("pagerview", "#9");
+            Log.d("pagerview", "#8.5");
+            Log.d("pagerview",  "Error if nothing after this log" + Integer.toString(spineList.size()));
             for (int i = 0; i < spineList.size(); i++) {
                 Log.d("pagerview", "spineorder outer loop");
                 for (int ii = 0; ii < idList.size(); ii++) {
                     Log.d("pagerview", "spineorder inner loop");
                     if (spineList.get(i).equals(idList.get(ii))) {
-                        Log.d("pagerview", "spineorder if inside loops");
-                        spinePathOrderedList.add(pathList.get(ii));
+                        Log.d("pagerview", "spineorder if inside loops" + resources_path + "/" + pathList.get(ii));
+                        spinePathOrderedList.add(resources_path + "/" + pathList.get(ii));
                     }
                 }
             }

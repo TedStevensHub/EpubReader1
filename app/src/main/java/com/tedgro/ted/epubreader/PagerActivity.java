@@ -43,27 +43,26 @@ import java.util.ArrayList;
 public class PagerActivity extends FragmentActivity {
 
     public static final int padding = 40;
-    public static ArrayList<String> pathList = new ArrayList<>();
-    public static ArrayList<String> absolutePathList = new ArrayList<>();
-    public static ArrayList<String> idList = new ArrayList<>();
-    public static ArrayList<String> typeList = new ArrayList<>();
-    public static ArrayList<String> spineList = new ArrayList<>();
-    //add spine data
-
-    public static ArrayList<Spanned> pageArray = new ArrayList<>();
-    public static String resources_path = "";
-    public static String folder = "";
-
+    public ViewPager myPager;
     public TextView fragmentTextView;
-
-
-    public static ViewPager myPager;
     public static PagerAdapter myPagerAdapter;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("pagerview", "#0");
         setContentView(R.layout.scrollview_layout);
+        Log.d("pagerview", "#0.1");
+
+        String resources_path = "";
+        ArrayList<String> pathList = new ArrayList<>();
+        ArrayList<String> absolutePathList = new ArrayList<>();
+        ArrayList<String> idList = new ArrayList<>();
+        ArrayList<String> typeList = new ArrayList<>();
+        ArrayList<String> spineList = new ArrayList<>();
+        String folder = "";
 
         //gather all metadata for when we need it
         String whereint = "";
@@ -118,61 +117,22 @@ public class PagerActivity extends FragmentActivity {
 
 
 
-
+        Log.d("pagerview", "#1");
         setContentView(R.layout.viewpager_layout);
-
+        Log.d("pagerview", "#2");
         // Instantiate a ViewPager and a PagerAdapter.
         myPager = (ViewPager) findViewById(R.id.pager);
+        Log.d("pagerview", "#3");
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        Log.d("pagerview", "#4");
         myPager.setAdapter(myPagerAdapter);
+        Log.d("pagerview", "#5");
 
 
-        try {
-            Spanned myspan = strToSpanned();
-            int boundsHeight = myPager.getHeight() - padding;
-            int newPageLineBottom = 0;
-            int lastPageLineBottom = 0;
-            TextView fragmentTextView = (TextView) myPager.findViewById(R.id.booktextview);
-            fragmentTextView.setVisibility(View.GONE);
-            fragmentTextView.setText(myspan);
-            int totalNumLines = fragmentTextView.getMaxLines();
-            int startLine = 1;
-            Spannable addpage = null;
+        initiateBook ib = new initiateBook();
+        ArrayList<Spanned> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, myPager);
+        Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
 
-
-
-
-            //does getlinebottom return heigh or total distance from top of textview
-            for (int i = 1;i<=totalNumLines ; i++) {
-                newPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
-
-                if (i==totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
-                    int start = fragmentTextView.getLayout().getLineStart(startLine);
-                    int end = fragmentTextView.getLayout().getLineEnd(i);
-                    TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
-                    pageArray.add(addpage);
-                    addpage=null;
-                }
-
-                if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
-                    i=i-1;
-                    lastPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
-                    int start = fragmentTextView.getLayout().getLineStart(startLine);
-                    int end = fragmentTextView.getLayout().getLineEnd(i);
-                    startLine = i+1;
-                    TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
-                    pageArray.add(addpage);
-                    addpage=null;
-                    i+=1;
-                }
-
-            }
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         fragmentTextView.setVisibility(View.VISIBLE);
         PageFragment.newInstance(1);
@@ -183,95 +143,171 @@ public class PagerActivity extends FragmentActivity {
 
 
 
+    public static class initiateBook {
+        //should go into class
+        public static ArrayList<Spanned> pageArray = new ArrayList<>();
+
+        public ArrayList<Spanned> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, ViewPager myPager) {
+            try {
+                Log.d("pagerview", "#6");
+                strToSpanned str = new strToSpanned();
+
+                Log.d("pagerview", "#13");
+                Spanned myspan = str.strToSpanned(spineList, idList, pathList, resources_path, myPager);
+                int boundsHeight = myPager.getHeight() - padding;
+                int newPageLineBottom = 0;
+                int lastPageLineBottom = 0;
+                TextView fragmentTextView = (TextView) myPager.findViewById(R.id.booktextview);
+                fragmentTextView.setVisibility(View.GONE);
+                fragmentTextView.setText(myspan);
+                int totalNumLines = fragmentTextView.getMaxLines();
+                int startLine = 1;
+                Spannable addpage = null;
+                Log.d("pagerview", "#14");
+
+                //does getlinebottom return heigh or total distance from top of textview
+                for (int i = 1; i <= totalNumLines; i++) {
+                    newPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
+
+                    if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
+                        int start = fragmentTextView.getLayout().getLineStart(startLine);
+                        int end = fragmentTextView.getLayout().getLineEnd(i);
+                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        pageArray.add(addpage);
+                        addpage = null;
+                    }
+
+                    if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
+                        i = i - 1;
+                        lastPageLineBottom = fragmentTextView.getLayout().getLineBottom(i);
+                        int start = fragmentTextView.getLayout().getLineStart(startLine);
+                        int end = fragmentTextView.getLayout().getLineEnd(i);
+                        startLine = i + 1;
+                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        pageArray.add(addpage);
+                        addpage = null;
+                        i += 1;
+                    }
+
+                }
+                Log.d("pagerview", "#15");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return pageArray;
+        }
+    }
+
+
+
 
     //return spannable of images and styled text
-    public static Spanned strToSpanned() throws Exception {
-        String htmlstring = concatHtmlString();
-        Spanned fullspan = Html.fromHtml(htmlstring, new Html.ImageGetter() {
-            @Override public Drawable getDrawable(String source) {
-                String path = resources_path + "/" + source;
-                Drawable d = Drawable.createFromPath(path);
+    public static class strToSpanned
+        {
+
+            public Spanned strToSpanned(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, final ViewPager myPager)throws Exception {
+
+                Log.d("pagerview", "#7");
+                concatHtmlString concat = new concatHtmlString();
+                String htmlstring = concat.concatHtmlString(spineList, idList, pathList);
+                Log.d("pagerview", "#11");
+                Spanned fullspan = Html.fromHtml(htmlstring, new Html.ImageGetter() {
+                @Override
+                public Drawable getDrawable(String source) {
+                    String path = resources_path + "/" + source;
+                    Drawable d = Drawable.createFromPath(path);
 
 
-                int finalw = 0;
-                int finalh = 0;
-                float widthpercentage = 0;
-                float heightpercentage = 0;
-                int widthbounds = myPager.getMeasuredWidth() - padding;
-                int heightbounds = myPager.getMeasuredHeight() - padding;
-                int truewidth = d.getIntrinsicWidth();
-                int trueheight = d.getIntrinsicHeight();
+                    int finalw = 0;
+                    int finalh = 0;
+                    float widthpercentage = 0;
+                    float heightpercentage = 0;
+                    int widthbounds = myPager.getMeasuredWidth() - padding;
+                    int heightbounds = myPager.getMeasuredHeight() - padding;
+                    int truewidth = d.getIntrinsicWidth();
+                    int trueheight = d.getIntrinsicHeight();
 
-                //scaling
+                    //scaling
 
-                widthpercentage = (truewidth-widthbounds)/truewidth;
-                heightpercentage = (trueheight-heightbounds)/trueheight;
+                    widthpercentage = (truewidth - widthbounds) / truewidth;
+                    heightpercentage = (trueheight - heightbounds) / trueheight;
 
-                if (widthpercentage==heightpercentage && widthpercentage >= 0) {
-                    finalw = widthbounds;
-                    finalh = heightbounds;
-                } else if (widthpercentage==heightpercentage && widthpercentage < 0) {
-                    finalw = truewidth;
-                    finalh = trueheight;
-                } else if (widthpercentage>heightpercentage) {
-                    if (widthpercentage<=0) {
-                        //no scaling
+                    if (widthpercentage == heightpercentage && widthpercentage >= 0) {
+                        finalw = widthbounds;
+                        finalh = heightbounds;
+                    } else if (widthpercentage == heightpercentage && widthpercentage < 0) {
                         finalw = truewidth;
                         finalh = trueheight;
-                    } else {
-                        //do scalling
-                        finalw = (int) (truewidth - (truewidth * widthpercentage));
-                        //use the dominant percentage that is width
-                        finalh = (int) (trueheight - (trueheight * widthpercentage));
+                    } else if (widthpercentage > heightpercentage) {
+                        if (widthpercentage <= 0) {
+                            //no scaling
+                            finalw = truewidth;
+                            finalh = trueheight;
+                        } else {
+                            //do scalling
+                            finalw = (int) (truewidth - (truewidth * widthpercentage));
+                            //use the dominant percentage that is width
+                            finalh = (int) (trueheight - (trueheight * widthpercentage));
+                        }
+                    } else if (widthpercentage < heightpercentage) {
+                        if (heightpercentage <= 0) {
+                            finalw = truewidth;
+                            finalh = trueheight;
+                        } else {
+                            finalw = (int) (truewidth - (truewidth * heightpercentage));
+                            //use the dominant percentage that is height
+                            finalh = (int) (trueheight - (trueheight * heightpercentage));
+                        }
                     }
-                } else if (widthpercentage<heightpercentage) {
-                    if (heightpercentage<=0) {
-                        finalw = truewidth;
-                        finalh = trueheight;
-                    } else {
-                        finalw = (int) (truewidth - (truewidth * heightpercentage));
-                        //use the dominant percentage that is height
-                        finalh = (int) (trueheight - (trueheight * heightpercentage));
-                    }
+
+                    d.setBounds(0, 0, finalw, finalh);
+                    return d;
                 }
+            }, null);
+                Log.d("pagerview", "#12");
 
-                d.setBounds(0, 0, finalw, finalh);
-                return d;
-            }
-        }, null);
-
+            return fullspan;
 
 
-        return fullspan;
-
-
+        }
     }
 
+    public static class concatHtmlString {
 
-
-    public static ArrayList spinePathOrdered() {
-        ArrayList<String> spinePathOrderedList = new ArrayList<>();
-
-        for (int i=0; i<spineList.size();i++) {
-            for (int ii=0; ii<idList.size(); ii++) {
-                if (spineList.get(i).equals(idList.get(ii))) {
-                    spinePathOrderedList.add(pathList.get(ii));
-                }
+        public String concatHtmlString(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList) throws Exception {
+            Log.d("pagerview", "#8");
+            ArrayList<String> spinePathOrderedList;
+            spinePathOrdered spo = new spinePathOrdered();
+            spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList);
+            Log.d("pagerview", "#9");
+            String htmlstring = "";
+            for (int i = 0; i < spinePathOrderedList.size(); i++) {
+                htmlstring += getStringFromFile(spinePathOrderedList.get(i)) + "\n";
             }
+            return htmlstring;
         }
-
-        return spinePathOrderedList;
     }
 
-    public static String concatHtmlString() throws Exception {
-        ArrayList<String> spinePathOrderedList;
-        spinePathOrderedList = spinePathOrdered();
+    public static class spinePathOrdered {
 
-        String htmlstring="";
-        for (int i=0; i<spinePathOrderedList.size(); i++) {
-            htmlstring += getStringFromFile(spinePathOrderedList.get(i))+"\n";
+        public ArrayList spinePathOrdered(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList) {
+
+            ArrayList<String> spinePathOrderedList = new ArrayList<>();
+            Log.d("pagerview", "#9");
+            for (int i = 0; i < spineList.size(); i++) {
+                Log.d("pagerview", "spineorder outer loop");
+                for (int ii = 0; ii < idList.size(); ii++) {
+                    Log.d("pagerview", "spineorder inner loop");
+                    if (spineList.get(i).equals(idList.get(ii))) {
+                        Log.d("pagerview", "spineorder if inside loops");
+                        spinePathOrderedList.add(pathList.get(ii));
+                    }
+                }
+            }
+
+            return spinePathOrderedList;
         }
-        return htmlstring;
     }
 
 
@@ -295,20 +331,19 @@ public class PagerActivity extends FragmentActivity {
         String htmlString = convertStreamToString(fin);
         //Make sure you close all streams.
         fin.close();
+        Log.d("pagerview", "#10");
         return htmlString;
     }
 
 
-
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+//was FragmentStatePagerAdapter, trying FragmentPagerAdapter
+    private class ScreenSlidePagerAdapter extends FragmentPagerAdapter {
         public ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-
-
 
             return PageFragment.newInstance(position);
         }
@@ -317,7 +352,7 @@ public class PagerActivity extends FragmentActivity {
         public int getCount() {
             //return number of pages
 
-            return pageArray.size();
+            return initiateBook.pageArray.size();
         }
     }
 
@@ -329,13 +364,13 @@ public class PagerActivity extends FragmentActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            ViewGroup rootView = (ViewGroup) inflater.inflate(
-                    R.layout.scrollview_layout, container, false);
+            //Views were both ViewGroup, testing as View
+            View rootView = inflater.inflate(R.layout.scrollview_layout, container, false);
 
             TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
 
             //add spanned object for the page they are going to
-            fragmentTextView.setText(pageArray.get(getArguments().getInt("index")));
+            fragmentTextView.setText(initiateBook.pageArray.get(getArguments().getInt("index")));
 
 
 

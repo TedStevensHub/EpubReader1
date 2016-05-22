@@ -21,17 +21,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="@color/white"
-        android:text="adsdas"
         />
 
 
 
-    <fragment
+<!--    <fragment
         android:name="com.tedgro.ted.epubreader.PagerActivity$SeekBarFragment"
         android:id="@+id/seekbar_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        tools:layout="@layout/seekbar_layout" />
+        tools:layout="@layout/seekbar_layout" />-->
 
 </RelativeLayout>

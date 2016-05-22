@@ -187,11 +187,17 @@ public class FileFragment extends AppCompatActivity {
     //meta data parser. can add other data logic
     public class parseXML {
 
-        ArrayList<String> imgHrefArray = new ArrayList<>();
-        ArrayList<String> imgIdArray = new ArrayList<>();
-        ArrayList<String> htmlHrefArray = new ArrayList<>();
-        ArrayList<String> htmlIdArray = new ArrayList<>();
-        ArrayList<String> spineArray = new ArrayList<>();
+
+        /*
+        *
+        * Somehow return all these
+        *
+        * */
+        public ArrayList<String> imgHrefArray = new ArrayList<>();
+        public ArrayList<String> imgIdArray = new ArrayList<>();
+        public ArrayList<String> htmlHrefArray = new ArrayList<>();
+        public ArrayList<String> htmlIdArray = new ArrayList<>();
+        public ArrayList<String> spineArray = new ArrayList<>();
 
         public Book parseXML (XmlPullParser parser)throws XmlPullParserException, IOException {
 
@@ -222,18 +228,17 @@ public class FileFragment extends AppCompatActivity {
                             Log.d("debugger", "item");
                             String mt = parser.getAttributeValue(null, "media-type");
                             if (mt.equals("image/jpeg") || mt.equals("image/png") || mt.equals("image/gif")) {
-                                imgIdArray.add(parser.getAttributeValue(null, "id"));
-                                imgHrefArray.add(parser.getAttributeValue(null, "href"));
-                                Log.d("debugger", imgIdArray.get(0));
+                                this.imgIdArray.add(parser.getAttributeValue(null, "id"));
+                                this.imgHrefArray.add(parser.getAttributeValue(null, "href"));
                                 Log.d("debugger", "item/img");
                             } else if (mt.equals("application/xhtml+xml")) {
-                                htmlIdArray.add(parser.getAttributeValue(null, "id"));
-                                htmlHrefArray.add(parser.getAttributeValue(null, "href"));
+                                this.htmlIdArray.add(parser.getAttributeValue(null, "id"));
+                                this.htmlHrefArray.add(parser.getAttributeValue(null, "href"));
                                 Log.d("debugger", "item/html");
                             }
                         } else if (name.equals("itemref")) {
                             Log.d("debugger", "itemref");
-                            spineArray.add(parser.getAttributeValue(null, "idref"));
+                            this.spineArray.add(parser.getAttributeValue(null, "idref"));
                         }
 
                 }
@@ -247,7 +252,7 @@ public class FileFragment extends AppCompatActivity {
         }
 
 
-/*        public ArrayList<String> getImgIdArray () {
+        public ArrayList<String> getImgIdArray () {
             return imgIdArray;
         }
         public ArrayList<String> getImgHrefArray () {
@@ -261,7 +266,7 @@ public class FileFragment extends AppCompatActivity {
         }
         public ArrayList<String> getSpineArray () {
             return spineArray;
-        }*/
+        }
 
 
         public void setClearArrays () {
@@ -435,6 +440,11 @@ public class FileFragment extends AppCompatActivity {
 
         try {
             parseXML px = new parseXML();
+            ArrayList<String> imgHrefArray = px.getImgHrefArray();
+            ArrayList<String> imgIdArray = px.getImgIdArray();
+            ArrayList<String> htmlIdArray = px.getHtmlIdArray();
+            ArrayList<String> htmlHrefArray = px.getHtmlHrefArray();
+            ArrayList<String> spineArray = px.getSpineArray();
 
             myParser mp = new myParser(fileName);
             //unsure if fileName passes in object or method
@@ -460,27 +470,27 @@ public class FileFragment extends AppCompatActivity {
             db.insert("book", null, values);
             values.clear();
 
-            for(int i=0; i<px.imgIdArray.size(); i++) {
+            for(int i=0; i<imgIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "img");
-                values.put("path", px.imgHrefArray.get(i));
-                values.put("r_id", px.imgIdArray.get(i));
-                Log.d("debugger", px.imgIdArray.get(i));
+                values.put("path", imgHrefArray.get(i));
+                values.put("r_id", imgIdArray.get(i));
+                Log.d("debugger", imgIdArray.get(i));
             }
-            for(int i=0; i<px.htmlIdArray.size(); i++) {
+            for(int i=0; i<htmlIdArray.size(); i++) {
                 values.put("folder_name", fileName);
                 values.put("type", "html");
-                values.put("path", px.htmlHrefArray.get(i));
-                values.put("r_id", px.htmlIdArray.get(i));
-                Log.d("debugger", px.htmlIdArray.get(i));
+                values.put("path", htmlHrefArray.get(i));
+                values.put("r_id", htmlIdArray.get(i));
+                Log.d("debugger", htmlIdArray.get(i));
             }
             db.insert("resources", null, values);
             values.clear();
 
-            for(int i=0; i<px.spineArray.size(); i++) {
+            for(int i=0; i<spineArray.size(); i++) {
                 values.put("folder_name", fileName);
-                values.put("idref", px.spineArray.get(i));
-                Log.d("debugger", px.spineArray.get(i));
+                values.put("idref", spineArray.get(i));
+                Log.d("debugger", spineArray.get(i));
             }
             db.insert("spinetable", null, values);
 

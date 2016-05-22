@@ -71,15 +71,28 @@ public class HomeActivity extends AppCompatActivity {
         db.close();
 
 
+        ListView lView = (ListView)findViewById(R.id.bookListView);
+
         //instantiate custom adapter
         MyCustomAdapter adapter = new MyCustomAdapter(list, alist, this);
 
         //handle listview and assign adapter
-        ListView lView = (ListView)findViewById(R.id.bookListView);
+
         lView.setAdapter(adapter);
 
+        assert lView != null;
+        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+                Log.d("intentlog", "#1 Position: " + Integer.toString(position));
+                Intent i = new Intent(getApplicationContext(), PagerActivity.class);
+                String pos = Integer.toString(position);
+                i.putExtra("bookpos", pos);
+                startActivity(i);
+                Log.d("intentlog", "2");
+            }
 
-        
+        });
 
 
 
@@ -186,6 +199,8 @@ public class HomeActivity extends AppCompatActivity {
             authorListText.setText(authorList.get(position));
             listItemText.bringToFront();
 //            listItemText.setTag(position);
+
+
 
 /*            listItemText.setOnClickListener(new View.OnClickListener() {
 

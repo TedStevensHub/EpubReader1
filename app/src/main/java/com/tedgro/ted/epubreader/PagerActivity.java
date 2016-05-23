@@ -1,5 +1,13 @@
 package com.tedgro.ted.epubreader;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -21,12 +29,14 @@ import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -46,7 +56,6 @@ public class PagerActivity extends FragmentActivity {
 
     public static final int padding = 40;
     public ViewPager myPager;
-    public TextView fragmentTextView;
     public static PagerAdapter myPagerAdapter;
 
 
@@ -109,13 +118,12 @@ public class PagerActivity extends FragmentActivity {
         db.close();
         //end gathering meta data
 
-
-
         Log.d("pagerview", "#1");
         setContentView(R.layout.viewpager_layout);
         Log.d("pagerview", "#2");
         // Instantiate a ViewPager and a PagerAdapter.
         myPager = (ViewPager) findViewById(R.id.pager);
+
         Log.d("pagerview", "#3");
 
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -124,8 +132,16 @@ public class PagerActivity extends FragmentActivity {
         Log.d("pagerview", "#5");
 
 
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int height = size.y;
+        int width = size.x;
+        int boundsHeight = height - padding;
+        int boundsWidth = width - padding;
+
         initiateBook ib = new initiateBook();
-        ArrayList<Spannable> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, myPager);
+        ArrayList<Spannable> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, boundsHeight, boundsWidth);
         Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
 
         PageFragment pf = new PageFragment();
@@ -140,18 +156,19 @@ public class PagerActivity extends FragmentActivity {
     public class initiateBook {
         //should go into class
         public ArrayList<Spannable> pageArray;
+        public TextView prepTextView;
 
-        public ArrayList<Spannable> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, ViewPager myPager) {
+        public ArrayList<Spannable> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, int boundsHeight, int boundsWidth) {
             try {
                 Log.d("pagerview", "#6");
                 ArrayList<Spanned> htmlSpannedArray;
                 strToSpanned str = new strToSpanned();
-                htmlSpannedArray = str.strToSpanned(spineList, idList, pathList, resources_path, myPager);
+                htmlSpannedArray = str.strToSpanned(spineList, idList, pathList, resources_path, boundsHeight, boundsWidth);
                 Log.d("pagerview", "#13");
-                int boundsHeight = myPager.getHeight() - padding;
-                Log.d("pagerview", "#13.1");
+                //Math.abs()
+                Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
 
-                TextView prepTextView = (TextView) myPager.findViewById(R.id.prepTextView);
+                prepTextView = (TextView) findViewById(R.id.prepTextView);
                 Log.d("pagerview", "#13.2");
 //                prepTextView.setVisibility(View.GONE);
 
@@ -162,17 +179,18 @@ public class PagerActivity extends FragmentActivity {
                     Log.d("pagerview", "#13.4");
                     int newPageLineBottom = 0;
                     int lastPageLineBottom = 0;
-                    prepTextView.setText(myspan, TextView.BufferType.SPANNABLE);
+                    prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
                     Log.d("pagerview", "#13.6");
                     int totalNumLines = prepTextView.getMaxLines();
-                    Log.d("pagerview", "#13.7");
+                    Log.d("pagerview", "#13.7 totalNumLines: "+Integer.toString(totalNumLines));
                     int startLine = 1;
                     Spannable addpage = null;
                     Log.d("pagerview", "#14");
 
                     //does getlinebottom return heigh or total distance from top of textview
                     for (int i = 1; i <= totalNumLines; i++) {
+                        Log.d("pagination", Integer.toString(i));
                         newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
 
                         if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
@@ -218,7 +236,7 @@ public class PagerActivity extends FragmentActivity {
     //return spannable of images and styled text
     public class strToSpanned {
 
-        public ArrayList<Spanned> strToSpanned(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, final ViewPager myPager) throws Exception {
+        public ArrayList<Spanned> strToSpanned(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, final int boundsHeight, final int boundsWidth) throws Exception {
 
             Log.d("pagerview", "#7");
             ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
@@ -229,7 +247,7 @@ public class PagerActivity extends FragmentActivity {
 
 
             /*
-            NEED TO GET THE DRAWABLE
+            SPANNEDS ARE NULL
             */
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
@@ -238,7 +256,9 @@ public class PagerActivity extends FragmentActivity {
                     @Override
                     public Drawable getDrawable(String source) {
                         String path = resources_path + "/" + source;
-                        Drawable d = Drawable.createFromPath(path);
+                        File f = new File(path);
+                        Drawable d = Drawable.createFromPath(f.getAbsolutePath());
+
                         Log.d("pagerview", "#11.2");
 
 
@@ -246,8 +266,8 @@ public class PagerActivity extends FragmentActivity {
                         int finalh = 0;
                         float widthpercentage = 0;
                         float heightpercentage = 0;
-                        int widthbounds = myPager.getMeasuredWidth() - padding;
-                        int heightbounds = myPager.getMeasuredHeight() - padding;
+                        int widthbounds = boundsWidth;
+                        int heightbounds = boundsHeight;
                         Log.d("pagerview", "#11.3");
                         int truewidth = d.getIntrinsicWidth();
                         int trueheight = d.getIntrinsicHeight();

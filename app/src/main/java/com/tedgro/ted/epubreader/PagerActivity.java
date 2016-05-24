@@ -58,7 +58,6 @@ public class PagerActivity extends FragmentActivity {
     public ViewPager myPager;
     public static PagerAdapter myPagerAdapter;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,7 +130,7 @@ public class PagerActivity extends FragmentActivity {
         myPager.setAdapter(myPagerAdapter);
         Log.d("pagerview", "#5");
 
-
+        //metrics
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -181,8 +180,20 @@ public class PagerActivity extends FragmentActivity {
                     int lastPageLineBottom = 0;
                     prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
-                    Log.d("pagerview", "#13.6");
-                    int totalNumLines = prepTextView.getMaxLines();
+
+                    int totalNumLines=0;
+
+                    /*
+                    this runnable doesn't report the log, broken code
+                    */
+                    prepTextView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int totalNumLines = prepTextView.getLineCount();
+                            Log.d("pagerview", "#13.6 totalNumLines inside runnable: "+Integer.toString(totalNumLines));
+                        }
+                    });
+
                     Log.d("pagerview", "#13.7 totalNumLines: "+Integer.toString(totalNumLines));
                     int startLine = 1;
                     Spannable addpage = null;

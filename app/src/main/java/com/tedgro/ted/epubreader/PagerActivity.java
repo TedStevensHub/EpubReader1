@@ -8,6 +8,9 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -55,14 +58,14 @@ import java.util.ArrayList;
 public class PagerActivity extends FragmentActivity {
 
     public static final int padding = 40;
-    public ViewPager myPager;
+    public static ViewPager myPager;
     public static PagerAdapter myPagerAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("pagerview", "#0");
-        setContentView(R.layout.scrollview_layout);
+        setContentView(R.layout.viewpager_layout);
         Log.d("pagerview", "#0.1");
 
         String resources_path = "";
@@ -118,7 +121,6 @@ public class PagerActivity extends FragmentActivity {
         //end gathering meta data
 
         Log.d("pagerview", "#1");
-        setContentView(R.layout.viewpager_layout);
         Log.d("pagerview", "#2");
         // Instantiate a ViewPager and a PagerAdapter.
         myPager = (ViewPager) findViewById(R.id.pager);
@@ -181,18 +183,27 @@ public class PagerActivity extends FragmentActivity {
                     prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
 
-                    int totalNumLines=0;
+                    final int totalNumLines=0;
+
 
                     /*
                     this runnable doesn't report the log, broken code
                     */
+
+
+
                     prepTextView.post(new Runnable() {
                         @Override
                         public void run() {
                             int totalNumLines = prepTextView.getLineCount();
-                            Log.d("pagerview", "#13.6 totalNumLines inside runnable: "+Integer.toString(totalNumLines));
+                            Log.d("pagerview: ", Integer.toString(prepTextView.getLineCount()));
+
+
+
                         }
                     });
+
+
 
                     Log.d("pagerview", "#13.7 totalNumLines: "+Integer.toString(totalNumLines));
                     int startLine = 1;

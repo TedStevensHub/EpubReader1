@@ -141,8 +141,34 @@ public class PagerActivity extends FragmentActivity {
         int boundsHeight = height - padding;
         int boundsWidth = width - padding;
 
+
+        //beging pagination
+
+        spinePathOrdered spo = new spinePathOrdered();
+        ArrayList<String> spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList, resources_path);
+
+        concatHtmlString concat = new concatHtmlString();
+        ArrayList<String> htmlStringArray = new ArrayList<>();
+        try {
+            htmlStringArray = concat.concatHtmlString(spinePathOrderedList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        strToSpanned str = new strToSpanned();
+        ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
+        try {
+            htmlSpannedArray = str.strToSpanned(htmlStringArray, resources_path, boundsHeight, boundsWidth);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         initiateBook ib = new initiateBook();
-        ArrayList<Spannable> pageArray = ib.initiateBook(spineList, idList, pathList, resources_path, boundsHeight, boundsWidth);
+        ArrayList<Spannable> pageArray = ib.initiateBook(htmlSpannedArray, boundsHeight);
+
+        //end pagination for onCreate
+
+
         Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
 
         PageFragment pf = new PageFragment();
@@ -159,12 +185,11 @@ public class PagerActivity extends FragmentActivity {
         public ArrayList<Spannable> pageArray;
         public TextView prepTextView;
 
-        public ArrayList<Spannable> initiateBook(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, int boundsHeight, int boundsWidth) {
+        public ArrayList<Spannable> initiateBook(ArrayList<Spanned> htmlSpannedArray, int boundsHeight) {
             try {
                 Log.d("pagerview", "#6");
-                ArrayList<Spanned> htmlSpannedArray;
-                strToSpanned str = new strToSpanned();
-                htmlSpannedArray = str.strToSpanned(spineList, idList, pathList, resources_path, boundsHeight, boundsWidth);
+
+
                 Log.d("pagerview", "#13");
                 //Math.abs()
                 Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
@@ -258,12 +283,11 @@ public class PagerActivity extends FragmentActivity {
     //return spannable of images and styled text
     public class strToSpanned {
 
-        public ArrayList<Spanned> strToSpanned(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path, final int boundsHeight, final int boundsWidth) throws Exception {
+        public ArrayList<Spanned> strToSpanned(ArrayList<String> htmlStringArray, final String resources_path, final int boundsHeight, final int boundsWidth) throws Exception {
 
             Log.d("pagerview", "#7");
             ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
-            concatHtmlString concat = new concatHtmlString();
-            ArrayList<String> htmlStringArray = concat.concatHtmlString(spineList, idList, pathList, resources_path);
+
             Log.d("spannedarray", Integer.toString(htmlStringArray.size()));
             Log.d("pagerview", "#11");
 
@@ -344,11 +368,9 @@ public class PagerActivity extends FragmentActivity {
 
     public class concatHtmlString {
 
-        public ArrayList<String> concatHtmlString(ArrayList<String> spineList, ArrayList<String> idList, ArrayList<String> pathList, final String resources_path) throws Exception {
+        public ArrayList<String> concatHtmlString(ArrayList<String> spinePathOrderedList) throws Exception {
             Log.d("pagerview", "#8");
-            ArrayList<String> spinePathOrderedList;
-            spinePathOrdered spo = new spinePathOrdered();
-            spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList, resources_path);
+
             Log.d("pagerview", "#9");
             ArrayList<String> htmlStringArray = new ArrayList<>();
             for (int i = 0; i < spinePathOrderedList.size(); i++) {

@@ -60,6 +60,8 @@ public class PagerActivity extends FragmentActivity {
     public static final int padding = 40;
     public static ViewPager myPager;
     public static PagerAdapter myPagerAdapter;
+    public static int boundsHeight = 0;
+    public TextView prepTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,17 +122,17 @@ public class PagerActivity extends FragmentActivity {
         db.close();
         //end gathering meta data
 
-        Log.d("pagerview", "#1");
-        Log.d("pagerview", "#2");
+        Log.d("new", "#1");
+        Log.d("new", "#2");
         // Instantiate a ViewPager and a PagerAdapter.
         myPager = (ViewPager) findViewById(R.id.pager);
 
-        Log.d("pagerview", "#3");
+        Log.d("new", "#3");
 
         myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        Log.d("pagerview", "#4");
+        Log.d("new", "#4");
         myPager.setAdapter(myPagerAdapter);
-        Log.d("pagerview", "#5");
+        Log.d("new", "#5");
 
         //metrics
         Display display = getWindowManager().getDefaultDisplay();
@@ -138,7 +140,7 @@ public class PagerActivity extends FragmentActivity {
         display.getSize(size);
         int height = size.y;
         int width = size.x;
-        int boundsHeight = height - padding;
+        boundsHeight = height - padding;
         int boundsWidth = width - padding;
 
 
@@ -146,6 +148,8 @@ public class PagerActivity extends FragmentActivity {
 
         spinePathOrdered spo = new spinePathOrdered();
         ArrayList<String> spinePathOrderedList = spo.spinePathOrdered(spineList, idList, pathList, resources_path);
+        Log.d("new", "#6");
+
 
         concatHtmlString concat = new concatHtmlString();
         ArrayList<String> htmlStringArray = new ArrayList<>();
@@ -154,79 +158,68 @@ public class PagerActivity extends FragmentActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d("new", "#7");
 
         strToSpanned str = new strToSpanned();
-        ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
         try {
-            htmlSpannedArray = str.strToSpanned(htmlStringArray, resources_path, boundsHeight, boundsWidth);
+            strToSpanned.htmlSpannedArray.clear();
+            str.strToSpanned(htmlStringArray, resources_path, boundsHeight, boundsWidth);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d("new", "#8");
 
         initiateBook ib = new initiateBook();
-        ArrayList<Spannable> pageArray = ib.initiateBook(htmlSpannedArray, boundsHeight);
+        ArrayList<Spannable> pageArray = ib.initiateBook(prepTextView);
+        Log.d("pagerview", "#16 Bounds Height: " + Integer.toString(boundsHeight));
+        Log.d("pagerview", "#16 Number of pages: " + Integer.toString(pageArray.size()));
 
-        //end pagination for onCreate
-
-
-        Log.d("pagerview", "#16 Number of pages: " + pageArray.size());
+        //end pagination onstart
 
         PageFragment pf = new PageFragment();
         pf.newInstance(1);
         Log.d("pagerview", "#17");
 
+        //end pagination for onCreate
+
+
+
+
+
+
     }
 
-
-
-
-    public class initiateBook {
+    public static class initiateBook {
         //should go into class
-        public ArrayList<Spannable> pageArray;
-        public TextView prepTextView;
+        public static ArrayList<Spannable> pageArray;
 
-        public ArrayList<Spannable> initiateBook(ArrayList<Spanned> htmlSpannedArray, int boundsHeight) {
+        public ArrayList<Spannable> initiateBook(TextView prepTextView) {
             try {
-                Log.d("pagerview", "#6");
-
 
                 Log.d("pagerview", "#13");
                 //Math.abs()
                 Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
 
-                prepTextView = (TextView) findViewById(R.id.prepTextView);
-                Log.d("pagerview", "#13.2");
-//                prepTextView.setVisibility(View.GONE);
 
-                for (int r=0;r<htmlSpannedArray.size();r++) {
+                Log.d("pagerview", "#13.2");
+
+                for (int r=0;r<strToSpanned.htmlSpannedArray.size();r++) {
                     Log.d("pagerview", "#13.3");
                     //one htmls span
-                    Spanned myspan = htmlSpannedArray.get(r);
+
+                    Spanned myspan = strToSpanned.htmlSpannedArray.get(r);
                     Log.d("pagerview", "#13.4");
                     int newPageLineBottom = 0;
                     int lastPageLineBottom = 0;
+
+                    //settext goes in on create
                     prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
 
-                    final int totalNumLines=0;
 
-
-                    /*
-                    this runnable doesn't report the log, broken code
-                    */
-
-
-
-                    prepTextView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            int totalNumLines = prepTextView.getLineCount();
-                            Log.d("pagerview: ", Integer.toString(prepTextView.getLineCount()));
-
-
-
-                        }
-                    });
+                    /////tree obs here!!!!!!!!
+                    int totalNumLines = prepTextView.getLineCount();
+                    Log.d("pagerview: ", Integer.toString(prepTextView.getLineCount()));
 
 
 
@@ -238,11 +231,19 @@ public class PagerActivity extends FragmentActivity {
                     //does getlinebottom return heigh or total distance from top of textview
                     for (int i = 1; i <= totalNumLines; i++) {
                         Log.d("pagination", Integer.toString(i));
+
+
+                        /////tree obs here!!!!!!!!
                         newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
 
                         if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
+
+                            /////tree obs here!!!!!!!!
                             int start = prepTextView.getLayout().getLineStart(startLine);
+                            /////tree obs here!!!!!!!!
                             int end = prepTextView.getLayout().getLineEnd(i);
+
+                            
                             TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
                             pageArray.add(addpage);
                             addpage = null;
@@ -281,12 +282,13 @@ public class PagerActivity extends FragmentActivity {
 
 
     //return spannable of images and styled text
-    public class strToSpanned {
+    public static class strToSpanned {
+        public static ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
 
-        public ArrayList<Spanned> strToSpanned(ArrayList<String> htmlStringArray, final String resources_path, final int boundsHeight, final int boundsWidth) throws Exception {
+        public void strToSpanned(ArrayList<String> htmlStringArray, final String resources_path, final int boundsHeight, final int boundsWidth) throws Exception {
 
             Log.d("pagerview", "#7");
-            ArrayList<Spanned> htmlSpannedArray = new ArrayList<>();
+
 
             Log.d("spannedarray", Integer.toString(htmlStringArray.size()));
             Log.d("pagerview", "#11");
@@ -362,7 +364,7 @@ public class PagerActivity extends FragmentActivity {
             }
             //loop doesn't crash, but spanned array is not produced
             Log.d("spannedarray", Integer.toString(htmlSpannedArray.size()));
-            return htmlSpannedArray;
+//            return htmlSpannedArray;
         }
     }
 
@@ -440,29 +442,7 @@ public class PagerActivity extends FragmentActivity {
     }
 
 
-//error in the two classes below
-/*
-    public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line + "\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
 
-    public static String getStringFromFile (String filePath) throws Exception {
-        File fl = new File(filePath);
-        FileInputStream fin = new FileInputStream(fl);
-        String htmlString = convertStreamToString(fin);
-        //Make sure you close all streams.
-        fin.close();
-        Log.d("pagerview", "#10");
-        return htmlString;
-    }
-*/
 
 
 //was FragmentStatePagerAdapter, trying FragmentPagerAdapter

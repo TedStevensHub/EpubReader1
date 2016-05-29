@@ -58,7 +58,7 @@ import java.util.ArrayList;
 public class PagerActivity extends FragmentActivity {
 
     public static final int padding = 40;
-    public static ViewPager myPager;
+    public ViewPager myPager;
     public static PagerAdapter myPagerAdapter;
     public static int boundsHeight = 0;
     public TextView prepTextView;
@@ -170,7 +170,8 @@ public class PagerActivity extends FragmentActivity {
         Log.d("new", "#8");
 
         initiateBook ib = new initiateBook();
-        ArrayList<Spannable> pageArray = ib.initiateBook(prepTextView);
+        ArrayList<Spannable> pageArray = ib.initiateBook();
+
         Log.d("pagerview", "#16 Bounds Height: " + Integer.toString(boundsHeight));
         Log.d("pagerview", "#16 Number of pages: " + Integer.toString(pageArray.size()));
 
@@ -189,18 +190,25 @@ public class PagerActivity extends FragmentActivity {
 
     }
 
-    public static class initiateBook {
+    public class initiateBook {
         //should go into class
-        public static ArrayList<Spannable> pageArray;
+        public ArrayList<Spannable> pageArray;
+        public TextView prepTextView;
 
-        public ArrayList<Spannable> initiateBook(TextView prepTextView) {
+        public ArrayList<Spannable> initiateBook() {
             try {
 
                 Log.d("pagerview", "#13");
-                //Math.abs()
+
+                /////////////////////////
+                //
+                //TREE OBS LISTENER here
+                prepTextView = (TextView) findViewById(R.id.prepTextView);
+
                 Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
 
-
+                //spanned array has 13 items here
+                Log.d("pagerview", "Spanned array size #1 = "+Integer.toString(strToSpanned.htmlSpannedArray.size()));
                 Log.d("pagerview", "#13.2");
 
                 for (int r=0;r<strToSpanned.htmlSpannedArray.size();r++) {
@@ -209,21 +217,21 @@ public class PagerActivity extends FragmentActivity {
 
                     Spanned myspan = strToSpanned.htmlSpannedArray.get(r);
                     Log.d("pagerview", "#13.4");
+
+
                     int newPageLineBottom = 0;
                     int lastPageLineBottom = 0;
 
-                    //settext goes in on create
+
                     prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
 
 
-                    /////tree obs here!!!!!!!!
+                    /////tree observation here!!!!!!!!
                     int totalNumLines = prepTextView.getLineCount();
-                    Log.d("pagerview: ", Integer.toString(prepTextView.getLineCount()));
+                    Log.d("pagerview: ", "totalNumLines = "+Integer.toString(prepTextView.getLineCount()));
 
 
-
-                    Log.d("pagerview", "#13.7 totalNumLines: "+Integer.toString(totalNumLines));
                     int startLine = 1;
                     Spannable addpage = null;
                     Log.d("pagerview", "#14");
@@ -233,17 +241,17 @@ public class PagerActivity extends FragmentActivity {
                         Log.d("pagination", Integer.toString(i));
 
 
-                        /////tree obs here!!!!!!!!
+                        /////tree observation here!!!!!!!!
                         newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
 
                         if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
 
-                            /////tree obs here!!!!!!!!
+                            /////tree observation here!!!!!!!!
                             int start = prepTextView.getLayout().getLineStart(startLine);
-                            /////tree obs here!!!!!!!!
+                            /////tree observation here!!!!!!!!
                             int end = prepTextView.getLayout().getLineEnd(i);
 
-                            
+
                             TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
                             pageArray.add(addpage);
                             addpage = null;
@@ -307,6 +315,7 @@ public class PagerActivity extends FragmentActivity {
                         File f = new File(path);
                         Drawable d = Drawable.createFromPath(f.getAbsolutePath());
 
+
                         Log.d("pagerview", "#11.2");
 
 
@@ -319,6 +328,7 @@ public class PagerActivity extends FragmentActivity {
                         Log.d("pagerview", "#11.3");
                         int truewidth = d.getIntrinsicWidth();
                         int trueheight = d.getIntrinsicHeight();
+//                        Log.d("pagerview", "Is image working = " + Integer.toString(truewidth));
 
                         //scaling
 
@@ -358,12 +368,14 @@ public class PagerActivity extends FragmentActivity {
                         return d;
                     }
                 }, null));
+
                 Log.d("pagerview", "#12");
 
 
             }
             //loop doesn't crash, but spanned array is not produced
-            Log.d("spannedarray", Integer.toString(htmlSpannedArray.size()));
+
+            Log.d("pagerview", "Spanned array size = "+Integer.toString(htmlSpannedArray.size()));
 //            return htmlSpannedArray;
         }
     }

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@color/white"
+    android:padding="0dp">
+
+    <TextView
+        android:id="@+id/list_book_string"
+        android:gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:textSize="22sp"
+        android:maxLines="1"
+        android:layout_marginRight="110dp"
+        android:text=""
+        android:textColor="@color/green1"
+        android:paddingRight="20dp"
+        android:clickable="false"
+        android:focusable="false"
+        />
+    <TextView
+        android:id="@+id/list_author_string"
+        android:gravity="start"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="20dp"
+        android:paddingTop="40dp"
+        android:textSize="16sp"
+        android:maxLines="1"
+        android:layout_marginRight="110dp"
+        android:paddingRight="20dp"
+        android:text=""
+        android:textColor="@color/orange"
+        android:clickable="false"
+        android:focusable="false"
+        />
+
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="40dp"
+    android:orientation="horizontal"
+    android:layout_alignParentRight="true"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="15dp">
+
+
+    <Button
+        android:background="@drawable/delete"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:id="@+id/bookDelete_btn"
+        android:layout_gravity="right"
+        android:layout_marginRight="15dp"
+        android:clickable="false"
+        android:focusable="false"
+        />
+
+    <Button
+        android:background="@drawable/info"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:id="@+id/bookInfo_btn"
+        android:layout_gravity="right"
+        android:layout_margin="0dp"
+        android:clickable="false"
+        android:focusable="false"
+        />
+</LinearLayout>
+</RelativeLayout>

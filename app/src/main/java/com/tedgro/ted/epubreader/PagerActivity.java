@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
@@ -198,6 +199,12 @@ public class PagerActivity extends FragmentActivity {
         public ArrayList<Spannable> pageArray;
         public TextView prepTextView;
 
+        //treeobserver variables
+        public int totalNumLines = 0;
+        public ArrayList<Integer> lineStartArray = new ArrayList<>();
+        public ArrayList<Integer> lineEndtArray = new ArrayList<>();
+        public ArrayList<Integer> lineBottomArray = new ArrayList<>();
+
         public ArrayList<Spannable> initiateBook() {
             try {
 
@@ -207,6 +214,30 @@ public class PagerActivity extends FragmentActivity {
                 //
                 //TREE OBS LISTENER here
                 prepTextView = (TextView) findViewById(R.id.prepTextView);
+
+
+
+                ViewTreeObserver vto = prepTextView.getViewTreeObserver();
+                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        //does my listener need to be removed in this situation??
+                        prepTextView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        int totalNumLines = prepTextView.getLineCount();
+                        Log.d("pagerview", "Line count: "+totalNumLines);
+                        for (int i=1;i<=totalNumLines;i++) {
+                            lineStartArray.add(prepTextView.getLayout().getLineStart(i));
+                            lineEndtArray.add(prepTextView.getLayout().getLineEnd(i));
+                            lineBottomArray.add(prepTextView.getLayout().getLineBottom(i));
+                        }
+
+                    }
+                });
+
+
+
+
+
 
                 Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
 
@@ -221,18 +252,11 @@ public class PagerActivity extends FragmentActivity {
                     Spanned myspan = strToSpanned.htmlSpannedArray.get(r);
                     Log.d("pagerview", "#13.4");
 
-
                     int newPageLineBottom = 0;
                     int lastPageLineBottom = 0;
 
-
                     prepTextView.setText(myspan);
                     Log.d("pagerview", "#13.5");
-
-
-                    /////tree observation here!!!!!!!!
-                    int totalNumLines = prepTextView.getLineCount();
-                    Log.d("pagerview: ", "totalNumLines = "+Integer.toString(prepTextView.getLineCount()));
 
 
                     int startLine = 1;
@@ -241,18 +265,17 @@ public class PagerActivity extends FragmentActivity {
 
                     //does getlinebottom return heigh or total distance from top of textview
                     for (int i = 1; i <= totalNumLines; i++) {
-                        Log.d("pagination", Integer.toString(i));
 
 
-                        /////tree observation here!!!!!!!!
-                        newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
+                        newPageLineBottom = lineBottomArray.get(i);
 
+                        //very last page
                         if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
 
                             /////tree observation here!!!!!!!!
-                            int start = prepTextView.getLayout().getLineStart(startLine);
+                            int start = lineStartArray.get(startLine);
                             /////tree observation here!!!!!!!!
-                            int end = prepTextView.getLayout().getLineEnd(i);
+                            int end = lineEndtArray.get(i);
 
 
                             TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
@@ -262,9 +285,9 @@ public class PagerActivity extends FragmentActivity {
 
                         if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
                             i = i - 1;
-                            lastPageLineBottom = prepTextView.getLayout().getLineBottom(i);
-                            int start = prepTextView.getLayout().getLineStart(startLine);
-                            int end = prepTextView.getLayout().getLineEnd(i);
+                            lastPageLineBottom = lineBottomArray.get(i);
+                            int start = lineStartArray.get(startLine);
+                            int end = lineEndtArray.get(i);
                             startLine = i + 1;
                             TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
                             pageArray.add(addpage);
@@ -273,7 +296,12 @@ public class PagerActivity extends FragmentActivity {
                         }
 
                     }
+
                 }
+
+
+
+
                 prepTextView.setText("");
                 Log.d("pagerview", "#15");
 

@@ -58,9 +58,9 @@ import java.util.ArrayList;
 public class PagerActivity extends FragmentActivity {
 
     public static final int padding = 40;
-    public ViewPager myPager;
-    public static PagerAdapter myPagerAdapter;
     public static int boundsHeight = 0;
+    public ViewPager myPager;
+    public PagerAdapter myPagerAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -162,11 +162,14 @@ public class PagerActivity extends FragmentActivity {
 
         for (int i=0;i<strToSpanned.htmlSpannedArray.size();i++) {
             prepTextView.append(strToSpanned.htmlSpannedArray.get(i));
+            Log.d("appender", Integer.toString(i));
         }
 
 
 
         //end pagination onstart
+
+
 
         Log.d("new", "#111");
         Log.d("new", "#222");
@@ -182,6 +185,9 @@ public class PagerActivity extends FragmentActivity {
         Log.d("new", "#444");
         myPager.setAdapter(myPagerAdapter);
         Log.d("new", "#555");
+
+        PageFragment pf = new PageFragment();
+        pf.newInstance(0);
 
         //end pagination for onCreate
 
@@ -202,7 +208,7 @@ public class PagerActivity extends FragmentActivity {
         pastatic.makePA(pageArray);
 
         PageFragment pf = new PageFragment();
-        pf.newInstance(1);
+        pf.newInstance(0);
         Log.d("pagerview", "#17");
 
     }
@@ -241,7 +247,7 @@ public class PagerActivity extends FragmentActivity {
                 Log.d("pagerview", "Spanned array size #1 = "+Integer.toString(strToSpanned.htmlSpannedArray.size()));
                 Log.d("pagerview", "#13.2");
 
-                for (int r=0;r<strToSpanned.htmlSpannedArray.size();r++) {
+/*                for (int r=0;r<strToSpanned.htmlSpannedArray.size();r++) {
                     Log.d("pagerview", "#13.3");
                     //one htmls span
 
@@ -254,53 +260,55 @@ public class PagerActivity extends FragmentActivity {
 
 
                     prepTextView.setText(myspan);
-                    Log.d("pagerview", "#13.5");
+                    Log.d("pagerview", "#13.5");*/
+
+                int newPageLineBottom = 0;
+                int lastPageLineBottom = 0;
+
+                /////tree observation here!!!!!!!!
+                int totalNumLines = prepTextView.getLineCount();
+                Log.d("pagerview: ", "totalNumLines = "+Integer.toString(prepTextView.getLineCount()));
+
+
+                int startLine = 1;
+                Spannable addpage = null;
+                Log.d("pagerview", "#14");
+
+                //does getlinebottom return heigh or total distance from top of textview
+                for (int i = 1; i <= totalNumLines; i++) {
+                    Log.d("pagination", Integer.toString(i));
 
 
                     /////tree observation here!!!!!!!!
-                    int totalNumLines = prepTextView.getLineCount();
-                    Log.d("pagerview: ", "totalNumLines = "+Integer.toString(prepTextView.getLineCount()));
+                    newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
 
-
-                    int startLine = 1;
-                    Spannable addpage = null;
-                    Log.d("pagerview", "#14");
-
-                    //does getlinebottom return heigh or total distance from top of textview
-                    for (int i = 1; i <= totalNumLines; i++) {
-                        Log.d("pagination", Integer.toString(i));
-
+                    if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
 
                         /////tree observation here!!!!!!!!
-                        newPageLineBottom = prepTextView.getLayout().getLineBottom(i);
+                        int start = prepTextView.getLayout().getLineStart(startLine);
+                        /////tree observation here!!!!!!!!
+                        int end = prepTextView.getLayout().getLineEnd(i);
 
-                        if (i == totalNumLines && newPageLineBottom - lastPageLineBottom <= boundsHeight) {
-
-                            /////tree observation here!!!!!!!!
-                            int start = prepTextView.getLayout().getLineStart(startLine);
-                            /////tree observation here!!!!!!!!
-                            int end = prepTextView.getLayout().getLineEnd(i);
-
-
-                            TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
-                            pageArray.add(addpage);
-                            addpage = null;
-                        }
-
-                        if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
-                            i = i - 1;
-                            lastPageLineBottom = prepTextView.getLayout().getLineBottom(i);
-                            int start = prepTextView.getLayout().getLineStart(startLine);
-                            int end = prepTextView.getLayout().getLineEnd(i);
-                            startLine = i + 1;
-                            TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
-                            pageArray.add(addpage);
-                            addpage = null;
-                            i += 1;
-                        }
-
+                        //myspan needs to be the concatenated span
+                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        pageArray.add(addpage);
+                        addpage = null;
                     }
+
+                    if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
+                        i = i - 1;
+                        lastPageLineBottom = prepTextView.getLayout().getLineBottom(i);
+                        int start = prepTextView.getLayout().getLineStart(startLine);
+                        int end = prepTextView.getLayout().getLineEnd(i);
+                        startLine = i + 1;
+                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        pageArray.add(addpage);
+                        addpage = null;
+                        i += 1;
+                    }
+
                 }
+                //}
                 prepTextView.setText("");
                 Log.d("pagerview", "#15");
 
@@ -521,9 +529,15 @@ public class PagerActivity extends FragmentActivity {
             View rootView = inflater.inflate(R.layout.scrollview_layout, container, false);
 
             TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
-            int page = Integer.parseInt(getArguments().getString("index"));
-            fragmentTextView.setText(paStatic.pa.get(page));
+            int page = getArguments().getInt("index");
 
+/*            if (page==0){
+                fragmentTextView.setText("");
+            }else if (page>0) {
+                fragmentTextView.setText(paStatic.pa.get(page));
+            }*/
+
+            fragmentTextView.setText("");
 
             return rootView;
         }

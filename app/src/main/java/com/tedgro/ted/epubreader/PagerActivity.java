@@ -1,32 +1,16 @@
 package com.tedgro.ted.epubreader;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -36,19 +20,14 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.TextView;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -61,6 +40,7 @@ public class PagerActivity extends FragmentActivity {
     public static int boundsHeight = 0;
     public ViewPager myPager;
     public PagerAdapter myPagerAdapter;
+    public TextView prepTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,24 +78,24 @@ public class PagerActivity extends FragmentActivity {
         }
 
         c=db.query("resources", new String[] {"type", "path", "r_id"}, "folder_name=?", new String[] {folder}, null, null, null);
-            while (c.moveToNext()) {
-                String type = c.getString(c.getColumnIndex("type"));
-                String path = c.getString(c.getColumnIndex("path"));
-                String r_id = c.getString(c.getColumnIndex("r_id"));
-                typeList.add(type);
-                pathList.add(path);
-                idList.add(r_id);
-                Log.d("pagerview", "resources: "+r_id);
-            }
+        while (c.moveToNext()) {
+            String type = c.getString(c.getColumnIndex("type"));
+            String path = c.getString(c.getColumnIndex("path"));
+            String r_id = c.getString(c.getColumnIndex("r_id"));
+            typeList.add(type);
+            pathList.add(path);
+            idList.add(r_id);
+            Log.d("pagerview", "resources: "+r_id);
+        }
 
 
         c=db.query("spinetable", new String[] {"idref"}, "folder_name=?", new String[] {folder}, null, null, null);
         while (c.moveToNext()) {
-                String idref = c.getString(c.getColumnIndex("idref"));
-                spineList.add(idref);
-                Log.d("pagerview", "idref: "+idref);
+            String idref = c.getString(c.getColumnIndex("idref"));
+            spineList.add(idref);
+            Log.d("pagerview", "idref: "+idref);
 
-            }
+        }
 
 
         db.close();
@@ -158,13 +138,21 @@ public class PagerActivity extends FragmentActivity {
         }
         Log.d("new", "#8");
 
-        TextView prepTextView = (TextView) findViewById(R.id.prepTextView);
+        prepTextView = (TextView) findViewById(R.id.prepTextView);
 
-        for (int i=0;i<strToSpanned.htmlSpannedArray.size();i++) {
-            prepTextView.append(strToSpanned.htmlSpannedArray.get(i));
-            Log.d("appender", Integer.toString(i));
+        Spanned myspan;
+        myspan = strToSpanned.htmlSpannedArray.get(0);
+        for (int i=1;i<strToSpanned.htmlSpannedArray.size();i++) {
+            Log.d("concater", "First "+Integer.toString(i));
+            myspan = (Spanned) TextUtils.concat(myspan, strToSpanned.htmlSpannedArray.get(i));
+            Log.d("concater", "Second "+Integer.toString(i));
         }
 
+
+        myspanStatic mss = new myspanStatic();
+        mss.makeMySpan(myspan);
+
+        prepTextView.setText(myspan);
 
 
         //end pagination onstart
@@ -213,6 +201,12 @@ public class PagerActivity extends FragmentActivity {
 
     }
 
+/*    @Override
+   public void onResume() {
+       super.onResume();  // Always call the superclass method first
+
+
+   }*/
 
 
     public static class paStatic {
@@ -223,7 +217,13 @@ public class PagerActivity extends FragmentActivity {
         }
     }
 
+    public static class myspanStatic {
+        public static Spanned myspan;
 
+        public void makeMySpan(Spanned myspan) {
+            this.myspan = myspan;
+        }
+    }
 
     public class initiateBook {
         //should go into class
@@ -239,28 +239,7 @@ public class PagerActivity extends FragmentActivity {
                 //
                 prepTextView = (TextView) findViewById(R.id.prepTextView);
                 //
-                /////////////////////////////
-
-                Log.d("pagerview", "#13.1 Height: " + Integer.toString(boundsHeight));
-
-                //spanned array has 13 items here
-                Log.d("pagerview", "Spanned array size #1 = "+Integer.toString(strToSpanned.htmlSpannedArray.size()));
-                Log.d("pagerview", "#13.2");
-
-/*                for (int r=0;r<strToSpanned.htmlSpannedArray.size();r++) {
-                    Log.d("pagerview", "#13.3");
-                    //one htmls span
-
-                    Spanned myspan = strToSpanned.htmlSpannedArray.get(r);
-                    Log.d("pagerview", "#13.4");
-
-
-                    int newPageLineBottom = 0;
-                    int lastPageLineBottom = 0;
-
-
-                    prepTextView.setText(myspan);
-                    Log.d("pagerview", "#13.5");*/
+                prepTextView.setText(myspanStatic.myspan);
 
                 int newPageLineBottom = 0;
                 int lastPageLineBottom = 0;
@@ -269,11 +248,12 @@ public class PagerActivity extends FragmentActivity {
                 int totalNumLines = prepTextView.getLineCount();
                 Log.d("pagerview: ", "totalNumLines = "+Integer.toString(prepTextView.getLineCount()));
 
-
+                //1
                 int startLine = 1;
                 Spannable addpage = null;
                 Log.d("pagerview", "#14");
 
+                //i=1
                 //does getlinebottom return heigh or total distance from top of textview
                 for (int i = 1; i <= totalNumLines; i++) {
                     Log.d("pagination", Integer.toString(i));
@@ -290,7 +270,7 @@ public class PagerActivity extends FragmentActivity {
                         int end = prepTextView.getLayout().getLineEnd(i);
 
                         //myspan needs to be the concatenated span
-                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
                         pageArray.add(addpage);
                         addpage = null;
                     }
@@ -301,9 +281,8 @@ public class PagerActivity extends FragmentActivity {
                         int start = prepTextView.getLayout().getLineStart(startLine);
                         int end = prepTextView.getLayout().getLineEnd(i);
                         startLine = i + 1;
-                        TextUtils.copySpansFrom(myspan, start, end, null, addpage, 0);
+                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
                         pageArray.add(addpage);
-                        addpage = null;
                         i += 1;
                     }
 
@@ -339,10 +318,6 @@ public class PagerActivity extends FragmentActivity {
             Log.d("spannedarray", Integer.toString(htmlStringArray.size()));
             Log.d("pagerview", "#11");
 
-
-            /*
-            SPANNEDS ARE NULL
-            */
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
                 Log.d("pagerview", "#11.1");
@@ -495,7 +470,7 @@ public class PagerActivity extends FragmentActivity {
 
 
 
-//was FragmentStatePagerAdapter, trying FragmentPagerAdapter
+    //was FragmentStatePagerAdapter, trying FragmentPagerAdapter
     private static class ScreenSlidePagerAdapter extends FragmentPagerAdapter {
 
 
@@ -532,10 +507,10 @@ public class PagerActivity extends FragmentActivity {
             int page = getArguments().getInt("index");
 
 /*            if (page==0){
-                fragmentTextView.setText("");
-            }else if (page>0) {
-                fragmentTextView.setText(paStatic.pa.get(page));
-            }*/
+               fragmentTextView.setText("");
+           }else if (page>0) {
+               fragmentTextView.setText(paStatic.pa.get(page));
+           }*/
 
             fragmentTextView.setText("");
 
@@ -604,3 +579,4 @@ public class PagerActivity extends FragmentActivity {
 
 
 }
+

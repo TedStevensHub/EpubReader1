@@ -250,13 +250,63 @@ public class PagerActivity extends FragmentActivity {
 
                 //1
                 int startLine = 1;
-                Spannable addpage = null;
+                Spannable addpage = new Spannable() {
+                    @Override
+                    public void setSpan(Object what, int start, int end, int flags) {
+
+                    }
+
+                    @Override
+                    public void removeSpan(Object what) {
+
+                    }
+
+                    @Override
+                    public <T> T[] getSpans(int start, int end, Class<T> type) {
+                        return null;
+                    }
+
+                    @Override
+                    public int getSpanStart(Object tag) {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getSpanEnd(Object tag) {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getSpanFlags(Object tag) {
+                        return 0;
+                    }
+
+                    @Override
+                    public int nextSpanTransition(int start, int limit, Class type) {
+                        return 0;
+                    }
+
+                    @Override
+                    public int length() {
+                        return 0;
+                    }
+
+                    @Override
+                    public char charAt(int index) {
+                        return 0;
+                    }
+
+                    @Override
+                    public CharSequence subSequence(int start, int end) {
+                        return null;
+                    }
+                };
                 Log.d("pagerview", "#14");
 
                 //i=1
                 //does getlinebottom return heigh or total distance from top of textview
                 for (int i = 1; i <= totalNumLines; i++) {
-                    Log.d("pagination", Integer.toString(i));
+                    Log.d("pagination", "Line: "+Integer.toString(i));
 
 
                     /////tree observation here!!!!!!!!
@@ -272,18 +322,20 @@ public class PagerActivity extends FragmentActivity {
                         //myspan needs to be the concatenated span
                         TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
                         pageArray.add(addpage);
-                        addpage = null;
                     }
 
+                    //is one image taking up 1 line stretched or multiple
                     if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
                         i = i - 1;
                         lastPageLineBottom = prepTextView.getLayout().getLineBottom(i);
                         int start = prepTextView.getLayout().getLineStart(startLine);
                         int end = prepTextView.getLayout().getLineEnd(i);
                         startLine = i + 1;
+                        //4th parameter default null
                         TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
+                        //app tries to add first page, and says it is null
                         pageArray.add(addpage);
-                        i += 1;
+                        i = i + 1;
                     }
 
                 }

@@ -190,12 +190,19 @@ public class PagerActivity extends FragmentActivity {
         super.onStart();
 
         initiateBook ib = new initiateBook();
-        ArrayList<Spannable> pageArray = ib.initiateBook();
+        ArrayList<CharSequence> pageArray = ib.initiateBook();
 
         paStatic pastatic = new paStatic();
         pastatic.makePA(pageArray);
 
         PageFragment pf = new PageFragment();
+
+        Log.d("pagerview", "Page Array Size: "+Integer.toString(paStatic.pa.size()));
+        /*if(paStatic.pa==null) {
+            pf.newInstance(-1);
+        }else{
+            pf.newInstance(0);
+        }*/
         pf.newInstance(0);
         Log.d("pagerview", "#17");
 
@@ -210,9 +217,9 @@ public class PagerActivity extends FragmentActivity {
 
 
     public static class paStatic {
-        public static ArrayList<Spannable> pa;
+        public static ArrayList<CharSequence> pa = new ArrayList<>();
 
-        public void makePA(ArrayList<Spannable> pageArray) {
+        public void makePA(ArrayList<CharSequence> pageArray) {
             this.pa = pageArray;
         }
     }
@@ -227,10 +234,10 @@ public class PagerActivity extends FragmentActivity {
 
     public class initiateBook {
         //should go into class
-        public ArrayList<Spannable> pageArray;
+        public ArrayList<CharSequence> pageArray = new ArrayList<>();
         public TextView prepTextView;
 
-        public ArrayList<Spannable> initiateBook() {
+        public ArrayList<CharSequence> initiateBook() {
             try {
 
                 Log.d("pagerview", "#13");
@@ -250,57 +257,7 @@ public class PagerActivity extends FragmentActivity {
 
                 //1
                 int startLine = 1;
-                Spannable addpage = new Spannable() {
-                    @Override
-                    public void setSpan(Object what, int start, int end, int flags) {
-
-                    }
-
-                    @Override
-                    public void removeSpan(Object what) {
-
-                    }
-
-                    @Override
-                    public <T> T[] getSpans(int start, int end, Class<T> type) {
-                        return null;
-                    }
-
-                    @Override
-                    public int getSpanStart(Object tag) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getSpanEnd(Object tag) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getSpanFlags(Object tag) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int nextSpanTransition(int start, int limit, Class type) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int length() {
-                        return 0;
-                    }
-
-                    @Override
-                    public char charAt(int index) {
-                        return 0;
-                    }
-
-                    @Override
-                    public CharSequence subSequence(int start, int end) {
-                        return null;
-                    }
-                };
+                CharSequence addpage = "";
                 Log.d("pagerview", "#14");
 
                 //i=1
@@ -317,22 +274,22 @@ public class PagerActivity extends FragmentActivity {
                         /////tree observation here!!!!!!!!
                         int start = prepTextView.getLayout().getLineStart(startLine);
                         /////tree observation here!!!!!!!!
-                        int end = prepTextView.getLayout().getLineEnd(i);
+//                        int end = prepTextView.getLayout().getLineEnd(i);
+                        int end = myspanStatic.myspan.length();
 
                         //myspan needs to be the concatenated span
-                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
+//                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
+                        addpage = myspanStatic.myspan.subSequence(start, end);
                         pageArray.add(addpage);
-                    }
-
-                    //is one image taking up 1 line stretched or multiple
-                    if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
+                    } else if (newPageLineBottom - lastPageLineBottom > boundsHeight) {
                         i = i - 1;
                         lastPageLineBottom = prepTextView.getLayout().getLineBottom(i);
                         int start = prepTextView.getLayout().getLineStart(startLine);
                         int end = prepTextView.getLayout().getLineEnd(i);
                         startLine = i + 1;
                         //4th parameter default null
-                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
+//                        TextUtils.copySpansFrom(myspanStatic.myspan, start, end, null, addpage, 0);
+                        addpage = myspanStatic.myspan.subSequence(start, end);
                         //app tries to add first page, and says it is null
                         pageArray.add(addpage);
                         i = i + 1;
@@ -349,7 +306,7 @@ public class PagerActivity extends FragmentActivity {
             return pageArray;
         }
 
-        public ArrayList<Spannable> getPageArray(){
+        public ArrayList<CharSequence> getPageArray(){
             return pageArray;
         }
 
@@ -373,7 +330,7 @@ public class PagerActivity extends FragmentActivity {
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
                 Log.d("pagerview", "#11.1");
-                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i), new Html.ImageGetter() {
+                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i)/*, new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
                         String path = resources_path + "/" + source;
@@ -432,7 +389,7 @@ public class PagerActivity extends FragmentActivity {
                         Log.d("pagerview", "#11.4");
                         return d;
                     }
-                }, null));
+                }, null*/));
 
                 Log.d("pagerview", "#12");
 
@@ -556,15 +513,12 @@ public class PagerActivity extends FragmentActivity {
             View rootView = inflater.inflate(R.layout.scrollview_layout, container, false);
 
             TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
-            int page = getArguments().getInt("index");
+            Bundle args = getArguments();
+            int page = args.getInt("index");
 
-/*            if (page==0){
-               fragmentTextView.setText("");
-           }else if (page>0) {
-               fragmentTextView.setText(paStatic.pa.get(page));
-           }*/
-
+            Log.d("pagerview", "Index #: "+Integer.toString(page));
             fragmentTextView.setText("");
+
 
             return rootView;
         }

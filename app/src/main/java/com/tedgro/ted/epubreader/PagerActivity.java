@@ -525,7 +525,7 @@ public class PagerActivity extends FragmentActivity {
         public int getCount() {
             //return number of pages
             //does this work, or is this called as the class is being created
-            return 50;
+            return paStatic.pa.size();
         }
     }
 

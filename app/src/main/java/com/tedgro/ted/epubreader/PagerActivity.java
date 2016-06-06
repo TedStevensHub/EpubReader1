@@ -2,7 +2,12 @@ package com.tedgro.ted.epubreader;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
@@ -13,6 +18,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -21,6 +27,7 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -42,6 +49,7 @@ public class PagerActivity extends FragmentActivity {
     public ViewPager myPager;
     public PagerAdapter myPagerAdapter;
     public TextView prepTextView;
+    public RelativeLayout height;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,7 +118,7 @@ public class PagerActivity extends FragmentActivity {
         display.getSize(size);
         int height = size.y;
         int width = size.x;
-        boundsHeight = height - padding;
+//        boundsHeight = height - padding;
         int boundsWidth = width - padding;
 
 
@@ -142,6 +150,7 @@ public class PagerActivity extends FragmentActivity {
         prepTextView = (TextView) findViewById(R.id.prepTextView);
 
         Spanned myspan;
+        Log.d("concater", "Size of spanned array "+Integer.toString(strToSpanned.htmlSpannedArray.size()));
         myspan = strToSpanned.htmlSpannedArray.get(0);
         for (int i=1;i<strToSpanned.htmlSpannedArray.size();i++) {
             Log.d("concater", "First "+Integer.toString(i));
@@ -153,30 +162,26 @@ public class PagerActivity extends FragmentActivity {
         myspanStatic mss = new myspanStatic();
         mss.makeMySpan(myspan);
 
-        prepTextView.setText(myspan);
+//        prepTextView.setText(myspan);
 
 
         //end pagination onstart
 
 
 
-        Log.d("new", "#111");
-        Log.d("new", "#222");
-        // Instantiate a ViewPager and a PagerAdapter.
-        myPager = (ViewPager) findViewById(R.id.pager);
 
-        Log.d("new", "#333");
+/*        // Instantiate a ViewPager and a PagerAdapter.
+       myPager = (ViewPager) findViewById(R.id.pager);
 
-        //send pagearray to class to become static
+       //send pagearray to class to become static
 
+       myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 
-        myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        Log.d("new", "#444");
-        myPager.setAdapter(myPagerAdapter);
-        Log.d("new", "#555");
+       myPager.setAdapter(myPagerAdapter);*/
+
 
 /*        PageFragment pf = new PageFragment();
-        pf.newInstance(0);*/
+       pf.newInstance(0);*/
 
         //end pagination for onCreate
 
@@ -190,31 +195,45 @@ public class PagerActivity extends FragmentActivity {
     protected void onStart() {
         super.onStart();
 
+        height = (RelativeLayout) findViewById(R.id.height);
+
+        boundsHeight = height.getHeight()-padding;
+
         initiateBook ib = new initiateBook();
         ArrayList<CharSequence> pageArray = ib.initiateBook();
 
         paStatic pastatic = new paStatic();
         pastatic.makePA(pageArray);
 
-        PageFragment pf = new PageFragment();
+        // Instantiate a ViewPager and a PagerAdapter.
+        myPager = (ViewPager) findViewById(R.id.pager);
+
+        //send pagearray to class to become static
+
+        myPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+
+        myPager.setAdapter(myPagerAdapter);
+//        PageFragment pf = new PageFragment();
 
         Log.d("pagerview", "Page Array Size: "+Integer.toString(paStatic.pa.size()));
-        /*if(paStatic.pa==null) {
-            pf.newInstance(-1);
-        }else{
-            pf.newInstance(0);
-        }*/
+       /*if(paStatic.pa==null) {
+           pf.newInstance(-1);
+       }else{
+           pf.newInstance(0);
+       }*/
         //pf.newInstance(0);
         Log.d("pagerview", "#17");
+
+
 
     }
 
 /*    @Override
-   public void onResume() {
-       super.onResume();  // Always call the superclass method first
+  public void onResume() {
+      super.onResume();  // Always call the superclass method first
 
 
-   }*/
+  }*/
 
 
     public static class paStatic {
@@ -331,7 +350,7 @@ public class PagerActivity extends FragmentActivity {
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
                 Log.d("pagerview", "#11.1");
-                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i), new Html.ImageGetter() {
+                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i)/*, new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
                         String path = resources_path + "/" + source;
@@ -340,7 +359,6 @@ public class PagerActivity extends FragmentActivity {
 
 
                         Log.d("pagerview", "#11.2");
-
 
                         int finalw = 0;
                         int finalh = 0;
@@ -355,42 +373,50 @@ public class PagerActivity extends FragmentActivity {
 
                         //scaling
 
-                        widthpercentage = (truewidth - widthbounds) / truewidth;
-                        heightpercentage = (trueheight - heightbounds) / trueheight;
+                        if(truewidth==0||trueheight==0){
 
-                        if (widthpercentage == heightpercentage && widthpercentage >= 0) {
-                            finalw = widthbounds;
-                            finalh = heightbounds;
-                        } else if (widthpercentage == heightpercentage && widthpercentage < 0) {
-                            finalw = truewidth;
-                            finalh = trueheight;
-                        } else if (widthpercentage > heightpercentage) {
-                            if (widthpercentage <= 0) {
-                                //no scaling
+                        }else {
+
+                            widthpercentage = (truewidth - widthbounds) / truewidth;
+
+                            heightpercentage = (trueheight - heightbounds) / trueheight;
+
+
+                            if (widthpercentage == heightpercentage && widthpercentage >= 0) {
+                                finalw = widthbounds;
+                                finalh = heightbounds;
+                            } else if (widthpercentage == heightpercentage && widthpercentage < 0) {
                                 finalw = truewidth;
                                 finalh = trueheight;
-                            } else {
-                                //do scaling
-                                finalw = (int) (truewidth - (truewidth * widthpercentage));
-                                //use the dominant percentage that is width
-                                finalh = (int) (trueheight - (trueheight * widthpercentage));
-                            }
-                        } else if (widthpercentage < heightpercentage) {
-                            if (heightpercentage <= 0) {
-                                finalw = truewidth;
-                                finalh = trueheight;
-                            } else {
-                                finalw = (int) (truewidth - (truewidth * heightpercentage));
-                                //use the dominant percentage that is height
-                                finalh = (int) (trueheight - (trueheight * heightpercentage));
+                            } else if (widthpercentage > heightpercentage) {
+                                if (widthpercentage <= 0) {
+                                    //no scaling
+                                    finalw = truewidth;
+                                    finalh = trueheight;
+                                } else {
+                                    //do scaling
+                                    finalw = (int) (truewidth - (truewidth * widthpercentage));
+                                    //use the dominant percentage that is width
+                                    finalh = (int) (trueheight - (trueheight * widthpercentage));
+                                }
+                            } else if (widthpercentage < heightpercentage) {
+                                if (heightpercentage <= 0) {
+                                    finalw = truewidth;
+                                    finalh = trueheight;
+                                } else {
+                                    finalw = (int) (truewidth - (truewidth * heightpercentage));
+                                    //use the dominant percentage that is height
+                                    finalh = (int) (trueheight - (trueheight * heightpercentage));
+                                }
                             }
                         }
-
                         d.setBounds(0, 0, finalw, finalh);
                         Log.d("pagerview", "#11.4");
+
+
                         return d;
                     }
-                }, null));
+                }, null*/));
 
                 Log.d("pagerview", "#12");
 
@@ -545,13 +571,13 @@ public class PagerActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        if (myPager.getCurrentItem() == 0) {
-            // finishes the activity and calls backstack
-            super.onBackPressed();
-        } else {
-            // Otherwise, select the previous page
-            myPager.setCurrentItem(myPager.getCurrentItem() - 1);
-        }
+//        if (myPager.getCurrentItem() == 0) {
+        // finishes the activity and calls backstack
+        super.onBackPressed();
+//        } else {
+//            // Otherwise, select the previous page
+//            myPager.setCurrentItem(myPager.getCurrentItem() - 1);
+//        }
     }
 
 
@@ -591,4 +617,5 @@ public class PagerActivity extends FragmentActivity {
 
 
 }
+
 

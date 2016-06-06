@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -174,8 +175,8 @@ public class PagerActivity extends FragmentActivity {
         myPager.setAdapter(myPagerAdapter);
         Log.d("new", "#555");
 
-        PageFragment pf = new PageFragment();
-        pf.newInstance(0);
+/*        PageFragment pf = new PageFragment();
+        pf.newInstance(0);*/
 
         //end pagination for onCreate
 
@@ -203,7 +204,7 @@ public class PagerActivity extends FragmentActivity {
         }else{
             pf.newInstance(0);
         }*/
-        pf.newInstance(0);
+        //pf.newInstance(0);
         Log.d("pagerview", "#17");
 
     }
@@ -330,7 +331,7 @@ public class PagerActivity extends FragmentActivity {
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
                 Log.d("pagerview", "#11.1");
-                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i)/*, new Html.ImageGetter() {
+                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i), new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
                         String path = resources_path + "/" + source;
@@ -389,7 +390,7 @@ public class PagerActivity extends FragmentActivity {
                         Log.d("pagerview", "#11.4");
                         return d;
                     }
-                }, null*/));
+                }, null));
 
                 Log.d("pagerview", "#12");
 
@@ -489,9 +490,9 @@ public class PagerActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            PageFragment pf = new PageFragment();
+//            PageFragment pf = new PageFragment();
 
-            return pf.newInstance(position);
+            return PageFragment.newInstance(position);
         }
 
         @Override
@@ -507,18 +508,23 @@ public class PagerActivity extends FragmentActivity {
 
     public static class PageFragment extends Fragment {
 
+        public TextView fragmentTextView;
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             //Views were both ViewGroup, testing as View
             View rootView = inflater.inflate(R.layout.scrollview_layout, container, false);
 
-            TextView fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
+            fragmentTextView = (TextView) rootView.findViewById(R.id.booktextview);
             Bundle args = getArguments();
             int page = args.getInt("index");
 
             Log.d("pagerview", "Index #: "+Integer.toString(page));
-            fragmentTextView.setText("");
-
+            if(paStatic.pa.isEmpty()) {
+                fragmentTextView.setText("");
+            }else{
+                fragmentTextView.setText(paStatic.pa.get(page));
+            }
 
             return rootView;
         }

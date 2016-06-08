@@ -118,7 +118,7 @@ public class PagerActivity extends FragmentActivity {
         display.getSize(size);
         int height = size.y;
         int width = size.x;
-//        boundsHeight = height - padding;
+        boundsHeight = height - 80;
         int boundsWidth = width - padding;
 
 
@@ -195,9 +195,9 @@ public class PagerActivity extends FragmentActivity {
     protected void onStart() {
         super.onStart();
 
-        height = (RelativeLayout) findViewById(R.id.height);
+//        height = (RelativeLayout) findViewById(R.id.height);
 
-        boundsHeight = height.getHeight()-padding;
+//        boundsHeight = height.getHeight()-padding;
 
         initiateBook ib = new initiateBook();
         ArrayList<CharSequence> pageArray = ib.initiateBook();
@@ -350,7 +350,7 @@ public class PagerActivity extends FragmentActivity {
 
             for (int i = 0; i < htmlStringArray.size(); i++) {
                 Log.d("pagerview", "#11.1");
-                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i)/*, new Html.ImageGetter() {
+                htmlSpannedArray.add(Html.fromHtml(htmlStringArray.get(i), new Html.ImageGetter() {
                     @Override
                     public Drawable getDrawable(String source) {
                         String path = resources_path + "/" + source;
@@ -416,7 +416,7 @@ public class PagerActivity extends FragmentActivity {
 
                         return d;
                     }
-                }, null*/));
+                }, null));
 
                 Log.d("pagerview", "#12");
 
